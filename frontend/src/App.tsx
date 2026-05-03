@@ -6,12 +6,34 @@ import { DiaryPage } from './components/DiaryPage';
 import { PersonScheduleCard } from './components/PersonScheduleCard';
 import { TravelGalleryPage } from './components/TravelGalleryPage';
 import { WeeklyCalendar } from './components/WeeklyCalendar';
+import { AdminTest } from './pages/stocks/AdminTest';
+import { Opinions } from './pages/stocks/Opinions';
+import { Reports } from './pages/stocks/Reports';
+import { StockDashboard } from './pages/stocks/StockDashboard';
 import { DashboardResponse, PersonSlug } from './types';
 import './styles.css';
 
 type PageKey = 'dashboard' | 'diary' | 'travel';
 
 export default function App() {
+  const path = window.location.pathname;
+
+  if (path === '/stocks/admin/test') {
+    return <AdminTest />;
+  }
+
+  if (path === '/stocks/reports') {
+    return <Reports />;
+  }
+
+  if (path === '/stocks/opinions') {
+    return <Opinions />;
+  }
+
+  if (path === '/stocks') {
+    return <StockDashboard />;
+  }
+
   const [selectedFilter, setSelectedFilter] = useState<PersonSlug>('all');
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);

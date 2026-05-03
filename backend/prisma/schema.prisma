@@ -12,6 +12,24 @@ enum ScheduleSource {
   GOOGLE_CALENDAR
 }
 
+enum StockMode {
+  MOCK
+  REAL
+}
+
+enum PortfolioFetchStatus {
+  SUCCESS
+  FAILED
+  FALLBACK
+}
+
+enum OpinionType {
+  BUY
+  SELL
+  HOLD
+  WATCH
+}
+
 model Person {
   id        Int        @id @default(autoincrement())
   name      String     @unique
@@ -40,3 +58,101 @@ model Schedule {
   @@index([startAt, endAt])
 }
 
+model StockTokenStore {
+  id          Int       @id @default(autoincrement())
+  mode        StockMode @unique
+  accessToken String
+  expiresAt   DateTime  @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@map("stock_token_store")
+}
+
+model PortfolioSnapshot {
+  id              Int                  @id @default(autoincrement())
+  mode            StockMode
+  ownerName       String
+  accountAlias    String
+  totalAsset      Float                @default(0)
+  principalAmount Float                @default(0)
+  profitLoss      Float                @default(0)
+  profitRate      Float                @default(0)
+  holdingsJson    Json
+  fetchedAt       DateTime             @db.Timestamptz(6)
+  fetchStatus     PortfolioFetchStatus @default(SUCCESS)
+  errorMessage    String?
+  createdAt       DateTime             @default(now()) @db.Timestamptz(6)
+
+  @@index([mode, ownerName, fetchedAt])
+  @@map("portfolio_snapshot")
+}
+
+model HoldingHistory {
+  id               Int      @id @default(autoincrement())
+  ownerName        String
+  accountAlias     String
+  stockCode        String
+  stockName        String
+  quantity         Float    @default(0)
+  averagePrice     Float    @default(0)
+  currentPrice     Float    @default(0)
+  evaluationAmount Float    @default(0)
+  profitLoss       Float    @default(0)
+  profitRate       Float    @default(0)
+  snapshotDate     DateTime @db.Date
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([ownerName, stockCode, snapshotDate])
+  @@map("holding_history")
+}
+
+model TradeOpinion {
+  id            Int         @id @default(autoincrement())
+  ownerName     String
+  stockCode     String
+  stockName     String
+  opinionType   OpinionType
+  opinionText   String
+  riskPoints    String?
+  targetPrice   Float?
+  stopLossPrice Float?
+  createdAt     DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime    @updatedAt @db.Timestamptz(6)
+
+  @@index([ownerName, stockCode, createdAt])
+  @@map("trade_opinion")
+}
+
+model DailyReport {
+  id                Int       @id @default(autoincrement())
+  reportDate        DateTime  @db.Date
+  mode              StockMode
+  summary           String
+  portfolioSummary  String
+  insightText       String
+  buyOpinion        String?
+  sellOpinion       String?
+  holdOpinion       String?
+  riskPoints        String?
+  sentToTelegram    Boolean   @default(false)
+  telegramSentAt    DateTime? @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([mode, reportDate])
+  @@map("daily_report")
+}
+
+model ApiStatusLog {
+  id             Int       @id @default(autoincrement())
+  mode           StockMode
+  currentIp      String?
+  registeredIp   String?
+  isIpMatched    Boolean   @default(false)
+  apiStatus      String
+  errorMessage   String?
+  checkedAt      DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([mode, checkedAt])
+  @@map("api_status_log")
+}

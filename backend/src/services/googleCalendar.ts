@@ -50,7 +50,7 @@ export async function fetchPiljaeGoogleSchedules(
 
   return (response.data.items ?? [])
     .filter((event) => event.start)
-    .map((event) => {
+    .map((event): DashboardSchedule | null => {
       const startAt =
         event.start?.dateTime ? new Date(event.start.dateTime) : normalizeEventDate(event.start?.date);
       const endAt =
@@ -67,7 +67,7 @@ export async function fetchPiljaeGoogleSchedules(
         location: event.location ?? null,
         startAt: startAt.toISOString(),
         endAt: endAt.toISOString(),
-        source: 'GOOGLE_CALENDAR' as const,
+        source: 'GOOGLE_CALENDAR',
         personId: person.id,
         personName: person.name,
         personSlug: person.slug,
