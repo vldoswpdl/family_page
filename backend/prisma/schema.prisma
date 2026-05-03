@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ScheduleSource {
+  DB
+  GOOGLE_CALENDAR
+}
+
+model Person {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  slug      String     @unique
+  color     String
+  schedules Schedule[]
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @db.Timestamptz(6)
+}
+
+model Schedule {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String?
+  location    String?
+  startAt     DateTime       @db.Timestamptz(6)
+  endAt       DateTime       @db.Timestamptz(6)
+  source      ScheduleSource @default(DB)
+  externalId  String?        @unique
+  personId    Int
+  person      Person         @relation(fields: [personId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime       @updatedAt @db.Timestamptz(6)
+
+  @@index([personId, startAt])
+  @@index([startAt, endAt])
+}
+
