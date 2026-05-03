@@ -69,7 +69,7 @@ function normalizeHolding(item: Record<string, unknown>): StockHolding {
   const stockCode = pickFirstString(item, ['stk_cd', 'stock_code', 'code', '종목코드']).replace(/^A/, '');
   const stockName = pickFirstString(item, ['stk_nm', 'stock_name', 'name', '종목명']) || stockCode || 'Unknown';
   const quantity = pickFirstNumber(item, ['rmnd_qty', 'qty', 'quantity', '보유수량']);
-  const averagePrice = pickFirstNumber(item, ['avg_prc', 'pchs_avg_pric', 'average_price', '매입평균가']);
+  const averagePrice = pickFirstNumber(item, ['pur_pric', 'avg_prc', 'pchs_avg_pric', 'average_price', '매입평균가']);
   const currentPrice = pickFirstNumber(item, ['cur_prc', 'now_pric', 'current_price', '현재가']);
   const evaluationAmount = pickFirstNumber(item, ['evlt_amt', 'eval_amt', 'evaluation_amount', '평가금액']);
   const profitLoss = pickFirstNumber(item, ['evltv_prft', 'pl_amt', 'profit_loss', '평가손익']);
@@ -96,10 +96,10 @@ function normalizePortfolioResponse(
   const record = assertRecord(raw);
   const holdings = findArray(raw).map(normalizeHolding).filter((holding) => holding.stockCode || holding.stockName !== 'Unknown');
   const totalAsset =
-    pickFirstNumber(record, ['tot_evlt_amt', 'tot_asset', 'total_asset', '추정예탁자산']) ||
+    pickFirstNumber(record, ['prsm_dpst_aset_amt', 'tot_evlt_amt', 'tot_asset', 'total_asset', '추정예탁자산']) ||
     holdings.reduce((sum, holding) => sum + holding.evaluationAmount, 0);
   const principalAmount =
-    pickFirstNumber(record, ['tot_pchs_amt', 'principal_amount', 'purchase_amount', '총매입금액']) ||
+    pickFirstNumber(record, ['tot_pur_amt', 'tot_pchs_amt', 'principal_amount', 'purchase_amount', '총매입금액']) ||
     holdings.reduce((sum, holding) => sum + holding.averagePrice * holding.quantity, 0);
   const profitLoss =
     pickFirstNumber(record, ['tot_evlt_pl', 'profit_loss', '총평가손익']) ||
@@ -254,7 +254,10 @@ export class KiwoomService {
 
   async getBalance(modeInput: unknown) {
     const mode = normalizeMode(modeInput);
-    return this.requestKiwoom(mode, 'kt00017');
+    return this.requestKiwoom(mode, 'kt00018', {
+      qry_tp: '1',
+      dmst_stex_tp: 'KRX'
+    });
   }
 
   async getPortfolio(modeInput: unknown, ownerName = 'Family', accountAlias?: string) {
