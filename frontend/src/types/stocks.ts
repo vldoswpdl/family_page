@@ -30,6 +30,8 @@ export interface PortfolioHistoryPoint {
   date: string;
   profitRate: number;
   profitLoss: number;
+  stockCode?: string;
+  stockName?: string;
   totalAsset?: number;
   evaluationAmount?: number;
 }
@@ -99,4 +101,3 @@ export interface ApiTestResult {
   warning?: string;
   portfolio?: StockPortfolio;
 }
-

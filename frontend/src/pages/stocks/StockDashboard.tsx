@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { AllocationChart, ReturnChart } from '../../components/stocks/StockCharts';
+import { DailyOpinionBoard } from '../../components/stocks/DailyOpinionBoard';
+import { HoldingCards } from '../../components/stocks/HoldingCards';
 import { HoldingsTable } from '../../components/stocks/HoldingsTable';
 import { InsightCard } from '../../components/stocks/InsightCard';
 import { ModeBadge } from '../../components/stocks/ModeBadge';
 import { PortfolioSummary } from '../../components/stocks/PortfolioSummary';
 import { StatusBanner } from '../../components/stocks/StatusBanner';
+import { StockDetailPanel } from '../../components/stocks/StockDetailPanel';
 import {
   fetchDailyInsight,
   fetchKiwoomStatus,
@@ -17,14 +20,16 @@ import {
 import { DailyReport, KiwoomStatus, PortfolioHistoryPoint, StockInsight, StockMode, StockPortfolio, TradeOpinion } from '../../types/stocks';
 
 export function StockDashboard() {
-  const [mode, setMode] = useState<StockMode>('mock');
+  const [mode, setMode] = useState<StockMode>('real');
   const [ownerName, setOwnerName] = useState('Family');
   const [portfolio, setPortfolio] = useState<StockPortfolio | null>(null);
   const [history, setHistory] = useState<PortfolioHistoryPoint[]>([]);
+  const [stockHistory, setStockHistory] = useState<PortfolioHistoryPoint[]>([]);
   const [status, setStatus] = useState<KiwoomStatus | null>(null);
   const [insight, setInsight] = useState<StockInsight | null>(null);
   const [opinions, setOpinions] = useState<TradeOpinion[]>([]);
   const [reports, setReports] = useState<DailyReport[]>([]);
+  const [selectedStockCode, setSelectedStockCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +53,13 @@ export function StockDashboard() {
       setInsight(insightData);
       setOpinions(opinionData);
       setReports(reportData);
+      setSelectedStockCode((current) => {
+        if (current && portfolioData.holdings.some((holding) => holding.stockCode === current)) {
+          return current;
+        }
+
+        return portfolioData.holdings[0]?.stockCode ?? null;
+      });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : 'Failed to load stock dashboard.');
     } finally {
@@ -58,6 +70,34 @@ export function StockDashboard() {
   useEffect(() => {
     void load();
   }, [mode, ownerName]);
+
+  useEffect(() => {
+    let disposed = false;
+
+    async function loadStockHistory() {
+      if (!selectedStockCode) {
+        setStockHistory([]);
+        return;
+      }
+
+      try {
+        const data = await fetchPortfolioHistory(mode, ownerName, selectedStockCode);
+        if (!disposed) {
+          setStockHistory(data);
+        }
+      } catch {
+        if (!disposed) {
+          setStockHistory([]);
+        }
+      }
+    }
+
+    void loadStockHistory();
+
+    return () => {
+      disposed = true;
+    };
+  }, [mode, ownerName, selectedStockCode]);
 
   async function handleRefresh() {
     if (mode === 'real' && !window.confirm('Run a real Kiwoom server portfolio refresh?')) {
@@ -81,7 +121,7 @@ export function StockDashboard() {
       <header className="stock-topbar">
         <div>
           <p>Family Stock Dashboard</p>
-          <h1>Portfolio</h1>
+          <h1>국내주식 포트폴리오</h1>
         </div>
         <nav className="stock-nav">
           <a href="/stocks">Dashboard</a>
@@ -110,7 +150,7 @@ export function StockDashboard() {
           </select>
         </label>
         <button className="stock-primary-button" onClick={handleRefresh} disabled={refreshing} type="button">
-          {refreshing ? 'Refreshing...' : 'Refresh'}
+          {refreshing ? 'Refreshing...' : '실시간 새로고침'}
         </button>
       </section>
 
@@ -141,10 +181,33 @@ export function StockDashboard() {
 
           <PortfolioSummary portfolio={portfolio} />
 
+          <section className="stock-panel">
+            <div className="stock-section-title">
+              <div>
+                <span>Holdings Snapshot</span>
+                <h2>보유 종목 한눈에 보기</h2>
+              </div>
+              <small>{portfolio.holdings.length} stocks</small>
+            </div>
+            <HoldingCards
+              holdings={portfolio.holdings}
+              selectedStockCode={selectedStockCode}
+              onSelect={setSelectedStockCode}
+            />
+          </section>
+
           <section className="stock-grid two">
             <ReturnChart history={history} />
             <AllocationChart holdings={portfolio.holdings} />
           </section>
+
+          <StockDetailPanel
+            holding={portfolio.holdings.find((holding) => holding.stockCode === selectedStockCode) ?? null}
+            history={stockHistory}
+            totalAsset={portfolio.totalAsset}
+          />
+
+          <DailyOpinionBoard holdings={portfolio.holdings} totalAsset={portfolio.totalAsset} />
 
           <section className="stock-panel">
             <div className="stock-section-title">

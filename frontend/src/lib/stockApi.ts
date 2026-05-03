@@ -41,10 +41,13 @@ export function fetchStockPortfolio(mode: StockMode, ownerName?: string) {
   return request<StockPortfolio>(`/portfolio/latest?${params.toString()}`);
 }
 
-export function fetchPortfolioHistory(mode: StockMode, ownerName?: string) {
+export function fetchPortfolioHistory(mode: StockMode, ownerName?: string, stockCode?: string) {
   const params = new URLSearchParams({ mode });
   if (ownerName) {
     params.set('ownerName', ownerName);
+  }
+  if (stockCode) {
+    params.set('stockCode', stockCode);
   }
   return request<PortfolioHistoryPoint[]>(`/portfolio/history?${params.toString()}`);
 }
@@ -121,4 +124,3 @@ export function sendTelegramReport(mode: StockMode) {
     body: JSON.stringify({ mode })
   });
 }
-

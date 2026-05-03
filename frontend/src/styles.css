@@ -393,6 +393,166 @@
   gap: 12px;
 }
 
+.stock-holding-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stock-holding-card {
+  min-height: 138px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  text-align: left;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.stock-holding-card:hover,
+.stock-holding-card.active {
+  border-color: #2563eb;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
+}
+
+.stock-holding-card span,
+.stock-holding-card small {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.stock-holding-card strong {
+  min-height: 42px;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.stock-holding-card em {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.stock-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-detail-grid article {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.stock-detail-grid span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stock-detail-grid strong {
+  color: #0f172a;
+  font-size: 1.06rem;
+}
+
+.stock-action-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.84rem;
+}
+
+.stock-action-chip.sell-check {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.stock-action-chip.watch {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.stock-daily-opinion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stock-daily-opinion {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.stock-daily-opinion span {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.stock-daily-opinion strong {
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
+.stock-daily-opinion small {
+  color: #64748b;
+  font-weight: 800;
+}
+
+.stock-daily-opinion p,
+.stock-daily-opinion em {
+  margin: 0;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.stock-daily-opinion em {
+  font-style: normal;
+  color: #7c2d12;
+}
+
+.stock-daily-opinion.sell {
+  border-color: #fecaca;
+}
+
+.stock-daily-opinion.watch {
+  border-color: #fde68a;
+}
+
+.stock-daily-opinion.hold {
+  border-color: #bfdbfe;
+}
+
 @media (max-width: 960px) {
   .stock-topbar,
   .stock-section-title {
@@ -409,7 +569,10 @@
   .stock-insight-grid,
   .stock-opinion-strip,
   .stock-report-mini-list,
-  .stock-test-grid {
+  .stock-test-grid,
+  .stock-holding-card-grid,
+  .stock-detail-grid,
+  .stock-daily-opinion-grid {
     grid-template-columns: 1fr;
   }
 }
