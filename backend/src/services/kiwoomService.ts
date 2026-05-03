@@ -254,11 +254,7 @@ export class KiwoomService {
 
   async getBalance(modeInput: unknown) {
     const mode = normalizeMode(modeInput);
-    const config = this.getModeConfig(mode);
-    return this.requestKiwoom(mode, 'kt00018', {
-      dmst_stex_tp: 'KRX',
-      ...(config.accountNo ? { acnt_no: config.accountNo } : {})
-    });
+    return this.requestKiwoom(mode, 'kt00017');
   }
 
   async getPortfolio(modeInput: unknown, ownerName = 'Family', accountAlias?: string) {
@@ -272,4 +268,3 @@ export class KiwoomService {
 }
 
 export const kiwoomService = new KiwoomService();
-
