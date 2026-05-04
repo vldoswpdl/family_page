@@ -3,18 +3,16 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 
 const envCandidates = [
-  path.resolve(process.cwd(), '.env'),
-  path.resolve(process.cwd(), '../.env')
+  path.resolve(process.cwd(), '../.env'),
+  path.resolve(process.cwd(), '.env')
 ];
 
-// Support both `backend/.env` and the shared root `.env` used by docker-compose.
+// Load the shared root `.env` first, then allow `backend/.env` to override specific backend values.
 for (const candidate of envCandidates) {
   if (fs.existsSync(candidate)) {
-    dotenv.config({ path: candidate });
-    break;
+    dotenv.config({ path: candidate, override: false });
   }
 }
-
 function getValue(key: string, fallback = '') {
   return process.env[key] ?? fallback;
 }
