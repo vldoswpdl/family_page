@@ -36,15 +36,15 @@ export function PerformanceSummary({ portfolio, history }: PerformanceSummaryPro
     <section className="stock-panel">
       <div className="stock-section-title">
         <div>
-          <span>Performance Record</span>
-          <h2>연도별 / 월별 수익 기록</h2>
+          <span>성과 기록</span>
+          <h2>연도별 / 월별 수익 현황</h2>
         </div>
-        <small>latest snapshot per period</small>
+        <small>기간별 최신 스냅샷 기준</small>
       </div>
 
       <div className="stock-performance-grid">
         <article>
-          <h3>Yearly</h3>
+          <h3>연도별</h3>
           {yearly.map(({ period, point }) => (
             <div key={period}>
               <span>{period}</span>
@@ -54,7 +54,7 @@ export function PerformanceSummary({ portfolio, history }: PerformanceSummaryPro
           ))}
         </article>
         <article>
-          <h3>Monthly</h3>
+          <h3>월별</h3>
           {monthly.map(({ period, point }) => (
             <div key={period}>
               <span>{period}</span>
@@ -67,4 +67,3 @@ export function PerformanceSummary({ portfolio, history }: PerformanceSummaryPro
     </section>
   );
 }
-

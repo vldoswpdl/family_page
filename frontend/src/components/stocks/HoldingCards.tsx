@@ -12,7 +12,7 @@ interface HoldingCardsProps {
 
 export function HoldingCards({ holdings, selectedStockCode, onSelect }: HoldingCardsProps) {
   if (!holdings.length) {
-    return <div className="stock-empty large">표시할 보유 종목이 없습니다. Real 모드에서 Refresh를 실행하세요.</div>;
+    return <div className="stock-empty large">표시할 보유 종목이 없습니다. 새로고침으로 실전 계좌 데이터를 불러와 주세요.</div>;
   }
 
   return (
@@ -33,4 +33,3 @@ export function HoldingCards({ holdings, selectedStockCode, onSelect }: HoldingC
     </div>
   );
 }
-

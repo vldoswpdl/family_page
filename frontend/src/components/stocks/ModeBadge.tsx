@@ -5,6 +5,5 @@ interface ModeBadgeProps {
 }
 
 export function ModeBadge({ mode }: ModeBadgeProps) {
-  return <span className={`stock-mode-badge ${mode}`}>{mode === 'real' ? 'REAL SERVER' : 'MOCK SERVER'}</span>;
+  return <span className={`stock-mode-badge ${mode}`}>{mode === 'real' ? '실전 서버' : '모의 서버'}</span>;
 }
-

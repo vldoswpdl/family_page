@@ -17,44 +17,42 @@ export function InvestorInsightPanel({ portfolio }: InvestorInsightPanelProps) {
   const totalHoldingAmount = holdings.reduce((sum, holding) => sum + holding.evaluationAmount, 0);
   const cashBuffer = Math.max(portfolio.totalAsset - totalHoldingAmount, 0);
   const cashRate = portfolio.totalAsset > 0 ? (cashBuffer / portfolio.totalAsset) * 100 : 0;
-  const topWinner = holdings.sort((left, right) => right.profitLoss - left.profitLoss)[0];
-  const topLoser = holdings.sort((left, right) => left.profitLoss - right.profitLoss)[0];
-  const concentration = holdings.sort((left, right) => allocation(right, portfolio.totalAsset) - allocation(left, portfolio.totalAsset))[0];
+  const topWinner = [...holdings].sort((left, right) => right.profitLoss - left.profitLoss)[0];
+  const topLoser = [...holdings].sort((left, right) => left.profitLoss - right.profitLoss)[0];
+  const concentration = [...holdings].sort((left, right) => allocation(right, portfolio.totalAsset) - allocation(left, portfolio.totalAsset))[0];
   const lossCount = holdings.filter((holding) => holding.profitRate <= -10).length;
   const profitTakingCount = holdings.filter((holding) => holding.profitRate >= 20).length;
 
   const cards = [
     {
-      label: 'Cash Buffer',
+      label: '현금 여력',
       title: `${cashRate.toFixed(1)}%`,
-      text: `${money(cashBuffer)} 정도가 현금/예수금 성격으로 남아 있습니다.`
+      text: `${money(cashBuffer)} 정도가 현금 또는 예수금 성격으로 남아 있습니다.`
     },
     {
-      label: 'Top Contributor',
-      title: topWinner ? topWinner.stockName : 'No data',
+      label: '수익 기여 1위',
+      title: topWinner ? topWinner.stockName : '데이터 없음',
       text: topWinner ? `${money(topWinner.profitLoss)} / ${topWinner.profitRate.toFixed(2)}%` : '수익 기여 종목이 없습니다.'
     },
     {
-      label: 'Largest Drag',
-      title: topLoser ? topLoser.stockName : 'No data',
+      label: '손실 영향 1위',
+      title: topLoser ? topLoser.stockName : '데이터 없음',
       text: topLoser ? `${money(topLoser.profitLoss)} / ${topLoser.profitRate.toFixed(2)}%` : '손실 종목이 없습니다.'
     },
     {
-      label: 'Concentration',
-      title: concentration ? concentration.stockName : 'No data',
-      text: concentration
-        ? `포트폴리오 비중 ${allocation(concentration, portfolio.totalAsset).toFixed(1)}%입니다.`
-        : '비중 분석 대상이 없습니다.'
+      label: '집중도',
+      title: concentration ? concentration.stockName : '데이터 없음',
+      text: concentration ? `포트폴리오 비중 ${allocation(concentration, portfolio.totalAsset).toFixed(1)}%입니다.` : '비중 분석 대상이 없습니다.'
     },
     {
-      label: 'Action Queue',
-      title: `${lossCount + profitTakingCount} items`,
-      text: `손실 점검 ${lossCount}개, 이익실현 점검 ${profitTakingCount}개입니다.`
+      label: '점검 대상',
+      title: `${lossCount + profitTakingCount}개`,
+      text: `손실 점검 ${lossCount}개, 이익실현 검토 ${profitTakingCount}개입니다.`
     },
     {
-      label: 'Record Quality',
-      title: portfolio.source === 'kiwoom' ? 'Live data' : 'Saved data',
-      text: `기준 시각 ${new Date(portfolio.fetchedAt).toLocaleString()} 데이터입니다.`
+      label: '기록 기준',
+      title: portfolio.source === 'kiwoom' ? '실시간 데이터' : '저장 데이터',
+      text: `기준 시각은 ${new Date(portfolio.fetchedAt).toLocaleString()}입니다.`
     }
   ];
 
@@ -62,10 +60,10 @@ export function InvestorInsightPanel({ portfolio }: InvestorInsightPanelProps) {
     <section className="stock-panel">
       <div className="stock-section-title">
         <div>
-          <span>Investor Notes</span>
-          <h2>투자 기록 인사이트</h2>
+          <span>투자자 노트</span>
+          <h2>기록 기반 인사이트</h2>
         </div>
-        <small>allocation, cash, contribution</small>
+        <small>비중, 현금, 기여도</small>
       </div>
       <div className="stock-investor-grid">
         {cards.map((card) => (
@@ -79,4 +77,3 @@ export function InvestorInsightPanel({ portfolio }: InvestorInsightPanelProps) {
     </section>
   );
 }
-

@@ -10,7 +10,7 @@ interface HoldingsTableProps {
 
 export function HoldingsTable({ holdings }: HoldingsTableProps) {
   if (!holdings.length) {
-    return <div className="stock-empty">No holdings saved yet.</div>;
+    return <div className="stock-empty">저장된 보유 종목이 없습니다.</div>;
   }
 
   return (
@@ -18,13 +18,13 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
       <table className="stock-table">
         <thead>
           <tr>
-            <th>Stock</th>
-            <th>Qty</th>
-            <th>Avg</th>
-            <th>Price</th>
-            <th>Evaluation</th>
-            <th>P/L</th>
-            <th>Return</th>
+            <th>종목</th>
+            <th>수량</th>
+            <th>평균단가</th>
+            <th>현재가</th>
+            <th>평가금액</th>
+            <th>평가손익</th>
+            <th>수익률</th>
           </tr>
         </thead>
         <tbody>
@@ -47,4 +47,3 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
     </div>
   );
 }
-

@@ -25,16 +25,16 @@ export function Reports() {
     try {
       await createDailyReport(STOCK_MODE);
       await loadReports();
-      setMessage('Daily report generated.');
+      setMessage('오늘 리포트를 생성했습니다.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Report generation failed.');
+      setMessage(error instanceof Error ? error.message : '리포트 생성에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   }
 
   async function handleTelegram() {
-    if (!window.confirm('Send the latest REAL mode daily report to Telegram?')) {
+    if (!window.confirm('최신 실전 서버 리포트를 텔레그램으로 전송할까요?')) {
       return;
     }
 
@@ -43,9 +43,9 @@ export function Reports() {
     try {
       await sendTelegramReport(STOCK_MODE);
       await loadReports();
-      setMessage('Telegram summary sent.');
+      setMessage('텔레그램 요약을 전송했습니다.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Telegram send failed.');
+      setMessage(error instanceof Error ? error.message : '텔레그램 전송에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -55,27 +55,27 @@ export function Reports() {
     <main className="stock-shell">
       <header className="stock-topbar">
         <div>
-          <p>Reports</p>
-          <h1>Daily summaries</h1>
+          <p>리포트</p>
+          <h1>일일 요약</h1>
         </div>
         <nav className="stock-nav">
-          <a href="/stocks">Dashboard</a>
-          <a href="/stocks/admin/test">API Test</a>
-          <a href="/stocks/reports">Reports</a>
-          <a href="/stocks/opinions">Opinions</a>
+          <a href="/stocks">대시보드</a>
+          <a href="/stocks/admin/test">API 테스트</a>
+          <a href="/stocks/reports">리포트</a>
+          <a href="/stocks/opinions">투자 의견</a>
         </nav>
       </header>
 
       <section className="stock-toolbar">
         <div className="stock-control-group">
           <ModeBadge mode={STOCK_MODE} />
-          <strong className="stock-real-warning">REAL SERVER REPORTS</strong>
+          <strong className="stock-real-warning">실전 서버 리포트</strong>
         </div>
         <button className="stock-primary-button" disabled={loading} onClick={handleGenerate} type="button">
-          Generate today
+          오늘 리포트 생성
         </button>
         <button className="stock-secondary-button" disabled={loading} onClick={handleTelegram} type="button">
-          Send Telegram
+          텔레그램 전송
         </button>
       </section>
 
@@ -89,14 +89,14 @@ export function Reports() {
                 <span>{new Date(report.reportDate).toLocaleDateString()}</span>
                 <h2>{report.summary}</h2>
               </div>
-              <small>{report.sentToTelegram ? 'Telegram sent' : 'Not sent'}</small>
+              <small>{report.sentToTelegram ? '텔레그램 전송 완료' : '미전송'}</small>
             </div>
             <p>{report.portfolioSummary}</p>
             <pre className="stock-report-text">{report.insightText}</pre>
             {report.riskPoints ? <p className="negative">{report.riskPoints}</p> : null}
           </article>
         ))}
-        {!reports.length ? <div className="stock-panel stock-empty large">No reports yet.</div> : null}
+        {!reports.length ? <div className="stock-panel stock-empty large">아직 리포트가 없습니다.</div> : null}
       </section>
     </main>
   );

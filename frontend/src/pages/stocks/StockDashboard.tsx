@@ -78,7 +78,7 @@ export function StockDashboard() {
         return portfolioData.holdings[0]?.stockCode ?? null;
       });
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Failed to load stock dashboard.');
+      setError(loadError instanceof Error ? loadError.message : '주식 대시보드를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ export function StockDashboard() {
       await refreshStockPortfolio(mode, ownerName);
       await load();
     } catch (refreshError) {
-      setError(refreshError instanceof Error ? refreshError.message : 'Refresh failed.');
+      setError(refreshError instanceof Error ? refreshError.message : '새로고침에 실패했습니다.');
     } finally {
       setRefreshing(false);
     }
@@ -140,54 +140,54 @@ export function StockDashboard() {
     <main className="stock-shell">
       <header className="stock-topbar">
         <div>
-          <p>Family Stock Dashboard</p>
-          <h1>Domestic Stock Portfolio</h1>
+          <p>가족 주식 대시보드</p>
+          <h1>국내 주식 포트폴리오</h1>
         </div>
         <nav className="stock-nav">
-          <a href="/stocks">Dashboard</a>
-          <a href="/stocks/admin/test">API Test</a>
-          <a href="/stocks/reports">Reports</a>
-          <a href="/stocks/opinions">Opinions</a>
+          <a href="/stocks">대시보드</a>
+          <a href="/stocks/admin/test">API 테스트</a>
+          <a href="/stocks/reports">리포트</a>
+          <a href="/stocks/opinions">투자 의견</a>
         </nav>
       </header>
 
       <section className="stock-toolbar">
-        <strong className="stock-mode-badge real">REAL SERVER</strong>
+        <strong className="stock-mode-badge real">실전 서버</strong>
         <label className="stock-input">
-          Owner
+          소유자
           <select value={ownerName} onChange={(event) => setOwnerName(event.target.value)}>
-            <option value="Family">All</option>
-            <option value="Me">Me</option>
-            <option value="Child">Child</option>
+            <option value="Family">전체</option>
+            <option value="Me">나</option>
+            <option value="Child">자녀</option>
           </select>
         </label>
         <button className="stock-primary-button" onClick={handleRefresh} disabled={refreshing} type="button">
-          {refreshing ? 'Refreshing...' : 'Refresh Live Portfolio'}
+          {refreshing ? '새로고침 중...' : '실시간 포트폴리오 새로고침'}
         </button>
       </section>
 
       <StatusBanner portfolio={portfolio} status={status} error={error} />
 
       {loading || !portfolio ? (
-        <div className="stock-panel stock-empty large">Loading stock dashboard...</div>
+        <div className="stock-panel stock-empty large">주식 대시보드를 불러오는 중입니다...</div>
       ) : (
         <>
           <section className="stock-meta-panel">
             <div>
-              <span>Last updated</span>
+              <span>최근 조회 시각</span>
               <strong>{new Date(portfolio.fetchedAt).toLocaleString()}</strong>
             </div>
             <div>
-              <span>Current IP</span>
-              <strong>{status?.currentIp || 'Unknown'}</strong>
+              <span>현재 외부 IP</span>
+              <strong>{status?.currentIp || '확인 불가'}</strong>
             </div>
             <div>
-              <span>Fixed IPs</span>
-              <strong>{registeredIps.map((item) => item.ip).join(', ') || 'Not configured'}</strong>
+              <span>고정 IP 목록</span>
+              <strong>{registeredIps.map((item) => item.ip).join(', ') || '설정 없음'}</strong>
             </div>
             <div>
-              <span>API status</span>
-              <strong>{status?.apiStatus || 'Unknown'}</strong>
+              <span>API 상태</span>
+              <strong>{status?.apiStatus || '확인 불가'}</strong>
             </div>
           </section>
 
@@ -203,10 +203,10 @@ export function StockDashboard() {
           <section className="stock-panel">
             <div className="stock-section-title">
               <div>
-                <span>Holdings Snapshot</span>
-                <h2>Portfolio Holdings</h2>
+                <span>보유 현황 스냅샷</span>
+                <h2>포트폴리오 보유 종목</h2>
               </div>
-              <small>{portfolio.holdings.length} stocks</small>
+              <small>{portfolio.holdings.length}개 종목</small>
             </div>
             <HoldingCards holdings={portfolio.holdings} selectedStockCode={selectedStockCode} onSelect={setSelectedStockCode} />
           </section>
@@ -231,8 +231,8 @@ export function StockDashboard() {
           <section className="stock-panel">
             <div className="stock-section-title">
               <div>
-                <span>Holdings</span>
-                <h2>Current portfolio</h2>
+                <span>보유 종목</span>
+                <h2>현재 포트폴리오</h2>
               </div>
               <small>{portfolio.accountAlias}</small>
             </div>
@@ -244,20 +244,20 @@ export function StockDashboard() {
           <section className="stock-panel">
             <div className="stock-section-title">
               <div>
-                <span>Recent Reports</span>
-                <h2>Daily report history</h2>
+                <span>최근 리포트</span>
+                <h2>일일 리포트 기록</h2>
               </div>
-              <a href="/stocks/reports">Open reports</a>
+              <a href="/stocks/reports">리포트 열기</a>
             </div>
             <div className="stock-report-mini-list">
               {reports.slice(0, 3).map((report) => (
                 <article key={report.id}>
                   <strong>{new Date(report.reportDate).toLocaleDateString()}</strong>
                   <p>{report.summary}</p>
-                  <span>{report.sentToTelegram ? 'Telegram sent' : 'Not sent'}</span>
+                  <span>{report.sentToTelegram ? '텔레그램 전송 완료' : '미전송'}</span>
                 </article>
               ))}
-              {!reports.length ? <div className="stock-empty compact">No reports yet.</div> : null}
+              {!reports.length ? <div className="stock-empty compact">아직 리포트가 없습니다.</div> : null}
             </div>
           </section>
         </>

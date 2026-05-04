@@ -24,18 +24,18 @@ interface ReturnChartProps {
 }
 
 export function ReturnChart({ history }: ReturnChartProps) {
-  const data = history.length ? history : [{ date: 'No data', profitRate: 0, profitLoss: 0 }];
+  const data = history.length ? history : [{ date: '데이터 없음', profitRate: 0, profitLoss: 0 }];
 
   return (
     <div className="stock-chart">
-      <h3>Return Rate</h3>
+      <h3>수익률 추이</h3>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ top: 8, right: 10, left: -18, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip />
-          <Area type="monotone" dataKey="profitRate" stroke="#2563eb" fill="#bfdbfe" name="Return %" />
+          <Area type="monotone" dataKey="profitRate" stroke="#2563eb" fill="#bfdbfe" name="수익률 %" />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -54,7 +54,7 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
 
   return (
     <div className="stock-chart">
-      <h3>Allocation</h3>
+      <h3>종목 비중</h3>
       <ResponsiveContainer width="100%" height={260}>
         {data.length ? (
           <PieChart>
@@ -66,7 +66,7 @@ export function AllocationChart({ holdings }: AllocationChartProps) {
             <Tooltip />
           </PieChart>
         ) : (
-          <BarChart data={[{ name: 'No data', value: 0 }]}>
+          <BarChart data={[{ name: '데이터 없음', value: 0 }]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="name" />
             <YAxis />
@@ -115,7 +115,7 @@ export function StockMonthlyChart({ history, currentEvaluationAmount, currentPro
 
   return (
     <div className="stock-chart">
-      <h3>Selected Stock Monthly View</h3>
+      <h3>선택 종목 월별 추이</h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data} margin={{ top: 10, right: 14, left: -10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -124,14 +124,14 @@ export function StockMonthlyChart({ history, currentEvaluationAmount, currentPro
           <YAxis yAxisId="amount" orientation="right" tick={{ fontSize: 12 }} />
           <Tooltip />
           <Legend />
-          <Line yAxisId="rate" type="monotone" dataKey="profitRate" stroke="#2563eb" strokeWidth={2} name="Return %" />
+          <Line yAxisId="rate" type="monotone" dataKey="profitRate" stroke="#2563eb" strokeWidth={2} name="수익률 %" />
           <Line
             yAxisId="amount"
             type="monotone"
             dataKey="evaluationAmount"
             stroke="#16a34a"
             strokeWidth={2}
-            name="Evaluation"
+            name="평가금액"
           />
         </LineChart>
       </ResponsiveContainer>

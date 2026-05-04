@@ -14,10 +14,10 @@ interface PortfolioSummaryProps {
 
 export function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
   const cards = [
-    { label: 'Total Asset', value: money(portfolio.totalAsset) },
-    { label: 'Profit / Loss', value: money(portfolio.profitLoss), tone: portfolio.profitLoss >= 0 ? 'positive' : 'negative' },
-    { label: 'Return Rate', value: rate(portfolio.profitRate), tone: portfolio.profitRate >= 0 ? 'positive' : 'negative' },
-    { label: 'Holdings', value: `${portfolio.holdings.length}` }
+    { label: '총자산', value: money(portfolio.totalAsset) },
+    { label: '평가손익', value: money(portfolio.profitLoss), tone: portfolio.profitLoss >= 0 ? 'positive' : 'negative' },
+    { label: '수익률', value: rate(portfolio.profitRate), tone: portfolio.profitRate >= 0 ? 'positive' : 'negative' },
+    { label: '보유 종목', value: `${portfolio.holdings.length}개` }
   ];
 
   return (
@@ -31,4 +31,3 @@ export function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
     </div>
   );
 }
-

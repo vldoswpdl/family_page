@@ -45,7 +45,7 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
       resetForm();
       await onChanged();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Fixed IP save failed.');
+      setMessage(error instanceof Error ? error.message : '고정 IP 저장에 실패했습니다.');
     }
   }
 
@@ -55,7 +55,7 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
       await deleteRegisteredIp(id);
       await onChanged();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Fixed IP delete failed.');
+      setMessage(error instanceof Error ? error.message : '고정 IP 삭제에 실패했습니다.');
     }
   }
 
@@ -63,16 +63,16 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
     <section className="stock-panel">
       <div className="stock-section-title">
         <div>
-          <span>Fixed IP Access</span>
-          <h2>Kiwoom 등록 고정 IP</h2>
+          <span>고정 IP 접근</span>
+          <h2>키움 등록 IP 관리</h2>
         </div>
-        <strong className={isMatched ? 'stock-ip-state matched' : 'stock-ip-state'}>{isMatched ? 'MATCHED' : 'CHECK'}</strong>
+        <strong className={isMatched ? 'stock-ip-state matched' : 'stock-ip-state'}>{isMatched ? '일치' : '확인 필요'}</strong>
       </div>
 
       <div className="stock-ip-summary">
         <div>
           <span>현재 외부 IP</span>
-          <strong>{currentIp || 'Unknown'}</strong>
+          <strong>{currentIp || '확인 불가'}</strong>
         </div>
         <div>
           <span>등록 가능 수</span>
@@ -85,14 +85,14 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
           <article key={item.id} className={item.isActive ? 'active' : ''}>
             <div>
               <strong>{item.ip}</strong>
-              <span>{item.label || 'No label'}</span>
+              <span>{item.label || '라벨 없음'}</span>
             </div>
             <div className="stock-ip-actions">
               <button type="button" onClick={() => startEdit(item)}>
-                Edit
+                수정
               </button>
               <button type="button" onClick={() => remove(item.id)}>
-                Delete
+                삭제
               </button>
             </div>
           </article>
@@ -101,13 +101,13 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
 
       <form className="stock-ip-form" onSubmit={submit}>
         <input value={ip} onChange={(event) => setIp(event.target.value)} placeholder="124.59.176.5" />
-        <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Label" />
+        <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="라벨" />
         <button className="stock-primary-button" type="submit" disabled={!editingId && registeredIps.length >= 10}>
-          {editingId ? 'Update IP' : 'Add IP'}
+          {editingId ? 'IP 수정' : 'IP 추가'}
         </button>
         {editingId ? (
           <button type="button" onClick={resetForm}>
-            Cancel
+            취소
           </button>
         ) : null}
       </form>
@@ -115,4 +115,3 @@ export function FixedIpManager({ mode, currentIp, registeredIps, onChanged }: Fi
     </section>
   );
 }
-
