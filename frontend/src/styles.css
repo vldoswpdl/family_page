@@ -259,6 +259,28 @@
   min-width: 860px;
 }
 
+.family-stock-sheet,
+.stock-family-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.stock-family-hero {
+  margin-bottom: 0;
+}
+
+.stock-family-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.stock-family-actions a {
+  text-decoration: none;
+}
+
 .stock-table th,
 .stock-table td {
   padding: 12px 10px;

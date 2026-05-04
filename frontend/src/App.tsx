@@ -3,6 +3,7 @@ import { fetchDashboard } from './lib/api';
 import { getWeekDays } from './lib/calendar';
 import { FilterBar } from './components/FilterBar';
 import { DiaryPage } from './components/DiaryPage';
+import { FamilyStockSheet } from './components/FamilyStockSheet';
 import { PersonScheduleCard } from './components/PersonScheduleCard';
 import { TravelGalleryPage } from './components/TravelGalleryPage';
 import { WeeklyCalendar } from './components/WeeklyCalendar';
@@ -13,7 +14,23 @@ import { StockDashboard } from './pages/stocks/StockDashboard';
 import { DashboardResponse, PersonSlug } from './types';
 import './styles.css';
 
-type PageKey = 'dashboard' | 'diary' | 'travel';
+type PageKey = 'dashboard' | 'diary' | 'travel' | 'stocks';
+
+function pageFromHash(): PageKey {
+  if (window.location.hash === '#travel') {
+    return 'travel';
+  }
+
+  if (window.location.hash === '#stocks') {
+    return 'stocks';
+  }
+
+  if (window.location.hash === '#diary') {
+    return 'diary';
+  }
+
+  return 'dashboard';
+}
 
 export default function App() {
   const path = window.location.pathname;
@@ -38,17 +55,7 @@ export default function App() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<PageKey>(() => {
-    if (window.location.hash === '#travel') {
-      return 'travel';
-    }
-
-    if (window.location.hash === '#diary') {
-      return 'diary';
-    }
-
-    return 'dashboard';
-  });
+  const [page, setPage] = useState<PageKey>(() => pageFromHash());
 
   useEffect(() => {
     let disposed = false;
@@ -64,7 +71,7 @@ export default function App() {
         }
       } catch (loadError) {
         if (!disposed) {
-          setError(loadError instanceof Error ? loadError.message : '알 수 없는 오류가 발생했습니다.');
+          setError(loadError instanceof Error ? loadError.message : '대시보드를 불러오는 중 오류가 발생했습니다.');
         }
       } finally {
         if (!disposed) {
@@ -82,17 +89,7 @@ export default function App() {
 
   useEffect(() => {
     function syncPageFromHash() {
-      if (window.location.hash === '#travel') {
-        setPage('travel');
-        return;
-      }
-
-      if (window.location.hash === '#diary') {
-        setPage('diary');
-        return;
-      }
-
-      setPage('dashboard');
+      setPage(pageFromHash());
     }
 
     window.addEventListener('hashchange', syncPageFromHash);
@@ -104,6 +101,8 @@ export default function App() {
   function handlePageChange(nextPage: PageKey) {
     if (nextPage === 'travel') {
       window.location.hash = 'travel';
+    } else if (nextPage === 'stocks') {
+      window.location.hash = 'stocks';
     } else if (nextPage === 'diary') {
       window.location.hash = 'diary';
     } else {
@@ -115,7 +114,6 @@ export default function App() {
 
   const weekDays = dashboard ? getWeekDays(dashboard.week.start) : [];
   const schedules = dashboard?.schedules ?? [];
-  // Filters only affect the main weekly board so the three person cards remain visible together.
   const filteredSchedules =
     selectedFilter === 'all'
       ? schedules
@@ -131,7 +129,7 @@ export default function App() {
             className={page === 'dashboard' ? 'page-nav-button active' : 'page-nav-button'}
             onClick={() => handlePageChange('dashboard')}
           >
-            온유네 주간일정표
+            온유네 주간 일정
           </button>
           <button
             type="button"
@@ -147,6 +145,13 @@ export default function App() {
           >
             여행 페이지
           </button>
+          <button
+            type="button"
+            className={page === 'stocks' ? 'page-nav-button active' : 'page-nav-button'}
+            onClick={() => handlePageChange('stocks')}
+          >
+            국내 주식 포트폴리오
+          </button>
         </nav>
 
         {page === 'dashboard' ? (
@@ -154,7 +159,7 @@ export default function App() {
             <section className="hero-card">
               <div>
                 <p className="hero-kicker">Family Weekly Dashboard</p>
-                <h1>온유네 주간일정표</h1>
+                <h1>온유네 주간 일정</h1>
               </div>
               <div className="hero-side">
                 <span className="hero-label">{dashboard?.week.label ?? '주간 일정'}</span>
@@ -165,7 +170,7 @@ export default function App() {
             <section className="content-card">
               <div className="section-heading">
                 <div>
-                  <h2>이번 주 전체 일정표</h2>
+                  <h2>이번 주 전체 일정</h2>
                 </div>
                 {dashboard ? (
                   <FilterBar
@@ -187,10 +192,10 @@ export default function App() {
             <section className="content-card">
               <div className="section-heading">
                 <div>
-                  <h2>개별 주간 일정표</h2>
+                  <h2>개별 주간 일정</h2>
                 </div>
                 <span className="subtle-note">
-                  필재는 Google Calendar, 병현·온유는 PostgreSQL 데이터를 사용합니다.
+                  현재는 Google Calendar, 병현/온유 PostgreSQL 데이터를 사용합니다.
                 </span>
               </div>
 
@@ -208,6 +213,8 @@ export default function App() {
           </>
         ) : page === 'travel' ? (
           <TravelGalleryPage />
+        ) : page === 'stocks' ? (
+          <FamilyStockSheet />
         ) : (
           <DiaryPage />
         )}
