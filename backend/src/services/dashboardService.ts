@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { getSeoulWeekRange, SEOUL_TIMEZONE } from '../lib/time';
 import { DashboardPerson, DashboardSchedule, PersonSlug } from '../types/dashboard';
-import { fetchPiljaeGoogleSchedules } from './googleCalendar';
+import { fetchGoogleSchedules, isGoogleCalendarConfiguredForPerson } from './googleCalendar';
 
 type PersonFilter = 'all' | PersonSlug;
 type ScheduleWithPerson = Prisma.ScheduleGetPayload<{
@@ -63,7 +63,7 @@ export async function getDashboardData(personFilterInput?: string, dateInput?: s
     }
   };
 
-  if (personFilter !== 'all' && personFilter !== 'piljae') {
+  if (personFilter !== 'all') {
     where.person = {
       slug: personFilter
     };
@@ -79,11 +79,13 @@ export async function getDashboardData(personFilterInput?: string, dateInput?: s
     }
   });
 
-  const piljae = dashboardPeople.find((person) => person.slug === 'piljae');
-  const googleSchedules =
-    piljae && (personFilter === 'all' || personFilter === 'piljae')
-      ? await fetchPiljaeGoogleSchedules(piljae, weekStart, weekEnd)
-      : [];
+  const googleScheduleGroups = await Promise.all(
+    dashboardPeople
+      .filter((person) => personFilter === 'all' || person.slug === personFilter)
+      .filter((person) => isGoogleCalendarConfiguredForPerson(person.slug))
+      .map((person) => fetchGoogleSchedules(person, weekStart, weekEnd))
+  );
+  const googleSchedules = googleScheduleGroups.flat();
 
   const schedules = [...dbSchedules.map(mapDbScheduleToView), ...googleSchedules].sort((left, right) => {
     return new Date(left.startAt).getTime() - new Date(right.startAt).getTime();

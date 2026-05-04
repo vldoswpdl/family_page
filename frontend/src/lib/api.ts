@@ -2,6 +2,11 @@ import { DashboardResponse, PersonSlug } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+export interface BackendHealth {
+  ok: boolean;
+  service: string;
+}
+
 export async function fetchDashboard(person: PersonSlug) {
   const response = await fetch(`${API_BASE_URL}/dashboard?person=${person}`);
 
@@ -12,3 +17,12 @@ export async function fetchDashboard(person: PersonSlug) {
   return (await response.json()) as DashboardResponse;
 }
 
+export async function fetchBackendHealth() {
+  const response = await fetch(`${API_BASE_URL}/health`);
+
+  if (!response.ok) {
+    throw new Error(`백엔드 응답 오류: ${response.status}`);
+  }
+
+  return (await response.json()) as BackendHealth;
+}

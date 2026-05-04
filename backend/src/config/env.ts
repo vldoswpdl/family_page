@@ -24,6 +24,9 @@ export const env = {
   frontendOrigin: getValue('FRONTEND_ORIGIN', 'http://localhost:5173'),
   databaseUrl: getValue('DATABASE_URL'),
   googleCalendarId: getValue('GOOGLE_CALENDAR_ID'),
+  googleCalendarIdPiljae: getValue('GOOGLE_CALENDAR_ID_PILJAE'),
+  googleCalendarIdByunghyun: getValue('GOOGLE_CALENDAR_ID_BYUNGHYUN'),
+  googleCalendarIdOnyu: getValue('GOOGLE_CALENDAR_ID_ONYU'),
   googleClientId: getValue('GOOGLE_CLIENT_ID'),
   googleClientSecret: getValue('GOOGLE_CLIENT_SECRET'),
   googleRedirectUri: getValue('GOOGLE_REDIRECT_URI'),
@@ -57,7 +60,7 @@ export const env = {
 };
 
 export const isGoogleCalendarConfigured = Boolean(
-  env.googleCalendarId &&
+  (env.googleCalendarId || env.googleCalendarIdPiljae || env.googleCalendarIdByunghyun || env.googleCalendarIdOnyu) &&
     env.googleClientId &&
     env.googleClientSecret &&
     env.googleRedirectUri &&

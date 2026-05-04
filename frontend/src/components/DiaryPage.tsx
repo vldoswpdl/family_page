@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -7,6 +7,7 @@ interface DiaryEntry {
   date: string;
   text: string;
   imageDataUrl?: string;
+  imageFileName?: string;
   createdAt: string;
 }
 
@@ -22,13 +23,13 @@ const INITIAL_ENTRIES: DiaryEntry[] = [
   {
     id: 'seed-1',
     date: '2026-05-01',
-    text: '아야진 스테이에 도착해서 짐을 풀고 바다를 보러 갔어요. 바람이 시원하고 모래놀이도 재미있었어요.',
+    text: '온유가 바닷가에서 모래를 만지고 바람을 느끼며 즐겁게 놀았어요.',
     createdAt: '2026-05-01T18:00:00+09:00'
   },
   {
     id: 'seed-2',
     date: '2026-05-02',
-    text: '가족이랑 맛있는 막국수를 먹고, 카페에 들렀다가 해변에서 또 신나게 놀았어요.',
+    text: '가족이 함께 맛있는 음식을 먹고 카페에서 조용히 쉬었어요.',
     createdAt: '2026-05-02T20:00:00+09:00'
   }
 ];
@@ -70,31 +71,43 @@ function groupEntries(entries: DiaryEntry[]): DiaryGroup[] {
 }
 
 export function DiaryPage() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState(() => format(new Date(), 'yyyy-MM-dd'));
   const [text, setText] = useState('');
   const [imageDataUrl, setImageDataUrl] = useState<string>('');
+  const [imageFileName, setImageFileName] = useState('');
   const [isComposerCollapsed, setIsComposerCollapsed] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   useEffect(() => {
     setEntries(readEntries());
   }, []);
 
   useEffect(() => {
-    if (entries.length > 0) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    }
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   }, [entries]);
 
   const groups = useMemo(() => groupEntries(entries), [entries]);
+
+  function clearImage() {
+    setImageDataUrl('');
+    setImageFileName('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
 
   function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
     if (!file) {
-      setImageDataUrl('');
+      clearImage();
       return;
     }
+
+    setImageFileName(file.name);
+    setSaveMessage('');
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -106,21 +119,24 @@ export function DiaryPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!text.trim()) {
+    if (!text.trim() && !imageDataUrl) {
+      setSaveMessage('글이나 사진을 하나 이상 입력해 주세요.');
       return;
     }
 
     const nextEntry: DiaryEntry = {
       id: `${selectedDate}-${Date.now()}`,
       date: selectedDate,
-      text: text.trim(),
+      text: text.trim() || '사진으로 남긴 하루입니다.',
       imageDataUrl: imageDataUrl || undefined,
+      imageFileName: imageFileName || undefined,
       createdAt: new Date().toISOString()
     };
 
     setEntries((current) => [...current, nextEntry]);
     setText('');
-    setImageDataUrl('');
+    clearImage();
+    setSaveMessage('다이어리를 저장했습니다.');
   }
 
   return (
@@ -131,8 +147,8 @@ export function DiaryPage() {
           <h1>온유네 다이어리</h1>
         </div>
         <div className="hero-side">
-          <span className="hero-label diary-label">매일 한 줄 기록</span>
-          <small>월별로 정리되고, 작성한 날짜만 예쁘게 모아 보여줍니다.</small>
+          <span className="hero-label diary-label">매일 조금씩 기록</span>
+          <small>월별로 정리하고, 작성한 날짜마다 사진과 글을 모아 보여줍니다.</small>
         </div>
       </section>
 
@@ -142,7 +158,7 @@ export function DiaryPage() {
             <p className="eyebrow">Diary View</p>
             <h2>월별 다이어리 모아보기</h2>
           </div>
-          <span className="subtle-note">노션형 타임라인 느낌으로 사진과 글을 가볍게 남길 수 있어요.</span>
+          <span className="subtle-note">이 브라우저에 사진과 글을 저장합니다.</span>
         </div>
 
         <div className="diary-board">
@@ -163,10 +179,10 @@ export function DiaryPage() {
 
                     {entry.imageDataUrl ? (
                       <div className="diary-entry-photo-frame">
-                        <img src={entry.imageDataUrl} alt="다이어리 첨부 이미지" className="diary-entry-photo" />
+                        <img src={entry.imageDataUrl} alt={entry.imageFileName || '다이어리 첨부 사진'} className="diary-entry-photo" />
                       </div>
                     ) : (
-                      <div className="diary-entry-photo-placeholder">사진 없이 글만 남겼어요</div>
+                      <div className="diary-entry-photo-placeholder">사진 없이 글만 기록했어요</div>
                     )}
 
                     <div className="diary-entry-content">
@@ -196,9 +212,10 @@ export function DiaryPage() {
                     <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
                   </label>
 
-                  <label className="diary-field compact">
+                  <label className="diary-field compact diary-file-field">
                     <span>사진 1장</span>
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} />
+                    <small>{imageFileName ? `선택됨: ${imageFileName}` : '선택된 사진이 없습니다.'}</small>
                   </label>
                 </div>
               ) : null}
@@ -206,12 +223,17 @@ export function DiaryPage() {
           </div>
 
           {isComposerCollapsed ? (
-            <div className="diary-collapsed-bar">
+            <button
+              type="button"
+              className="diary-collapsed-bar"
+              onClick={() => setIsComposerCollapsed(false)}
+              aria-label="다이어리 작성창 펼치기"
+            >
               <p className="diary-date-badge compact">
                 {format(parseISO(selectedDate), 'yyyy년 M월 d일 (EEE)', { locale: ko })}
               </p>
-              <span className="diary-collapsed-hint">작성창을 접어두면 아래 기록들을 더 편하게 읽을 수 있어요.</span>
-            </div>
+              <span className="diary-collapsed-hint">접혀 있습니다. 눌러서 다시 펼치세요.</span>
+            </button>
           ) : (
             <>
               {imageDataUrl ? (
@@ -219,22 +241,24 @@ export function DiaryPage() {
                   <div className="diary-preview-card">
                     <img src={imageDataUrl} alt="업로드 미리보기" className="diary-preview-image" />
                   </div>
-                  <button
-                    type="button"
-                    className="page-nav-button diary-reset-button"
-                    onClick={() => setImageDataUrl('')}
-                  >
-                    사진 지우기
-                  </button>
+                  <div className="diary-preview-meta">
+                    <strong>{imageFileName}</strong>
+                    <button type="button" className="page-nav-button diary-reset-button" onClick={clearImage}>
+                      사진 지우기
+                    </button>
+                  </div>
                 </div>
               ) : null}
 
               <label className="diary-field diary-textarea-field">
-                <span>오늘 있었던 일</span>
+                <span>오늘 어땠나요?</span>
                 <textarea
                   value={text}
-                  onChange={(event) => setText(event.target.value)}
-                  placeholder="예: 오늘은 바다에서 놀고 맛있는 저녁도 먹었어요."
+                  onChange={(event) => {
+                    setText(event.target.value);
+                    setSaveMessage('');
+                  }}
+                  placeholder="예: 오늘은 바다에서 놀고 맛있는 간식도 먹었어요."
                   rows={3}
                 />
               </label>
@@ -243,15 +267,16 @@ export function DiaryPage() {
                 <p className="diary-date-badge compact">
                   {format(parseISO(selectedDate), 'yyyy년 M월 d일 (EEE)', { locale: ko })}
                 </p>
+                <button
+                  type="button"
+                  className="diary-collapse-button bottom"
+                  onClick={() => setIsComposerCollapsed(true)}
+                  aria-label="다이어리 작성창 접기"
+                >
+                  접기
+                </button>
                 <div className="diary-actions-bottom">
-                  <button
-                    type="button"
-                    className="diary-collapse-button bottom"
-                    onClick={() => setIsComposerCollapsed((current) => !current)}
-                    aria-label={isComposerCollapsed ? '다이어리 작성창 펼치기' : '다이어리 작성창 접기'}
-                  >
-                    {isComposerCollapsed ? '△' : '▽'}
-                  </button>
+                  {saveMessage ? <span className="diary-save-message">{saveMessage}</span> : null}
                   <button type="submit" className="diary-submit-button">
                     다이어리 저장하기
                   </button>

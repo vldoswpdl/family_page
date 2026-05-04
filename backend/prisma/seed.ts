@@ -37,7 +37,6 @@ async function main() {
 
   await prisma.schedule.createMany({
     data: [
-      // Sample schedules are seeded for the week of 2026-04-27 in Asia/Seoul.
       {
         personId: byunghyun.id,
         title: '헬스',
@@ -51,18 +50,9 @@ async function main() {
         personId: byunghyun.id,
         title: '저녁 약속',
         description: '친구와 저녁 식사',
-        location: '합정',
+        location: '송정',
         startAt: new Date('2026-04-30T19:00:00+09:00'),
         endAt: new Date('2026-04-30T21:00:00+09:00'),
-        source: ScheduleSource.DB
-      },
-      {
-        personId: byunghyun.id,
-        title: '지인 모임',
-        description: '주말 모임',
-        location: '성수',
-        startAt: new Date('2026-05-03T19:00:00+09:00'),
-        endAt: new Date('2026-05-03T21:00:00+09:00'),
         source: ScheduleSource.DB
       },
       {
@@ -72,33 +62,6 @@ async function main() {
         location: '집',
         startAt: new Date('2026-04-29T19:30:00+09:00'),
         endAt: new Date('2026-04-29T20:00:00+09:00'),
-        source: ScheduleSource.DB
-      },
-      {
-        personId: onyu.id,
-        title: '미술학원',
-        description: '주간 미술 수업',
-        location: '미술학원',
-        startAt: new Date('2026-05-01T15:00:00+09:00'),
-        endAt: new Date('2026-05-01T16:00:00+09:00'),
-        source: ScheduleSource.DB
-      },
-      {
-        personId: onyu.id,
-        title: '축구',
-        description: '주말 체육 활동',
-        location: '근처 운동장',
-        startAt: new Date('2026-05-02T10:00:00+09:00'),
-        endAt: new Date('2026-05-02T11:00:00+09:00'),
-        source: ScheduleSource.DB
-      },
-      {
-        personId: onyu.id,
-        title: '가족식당 외식',
-        description: '주말 가족 외식',
-        location: '가족식당',
-        startAt: new Date('2026-05-03T11:00:00+09:00'),
-        endAt: new Date('2026-05-03T12:30:00+09:00'),
         source: ScheduleSource.DB
       }
     ]

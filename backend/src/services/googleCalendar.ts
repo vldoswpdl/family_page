@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { google } from 'googleapis';
 import { env, isGoogleCalendarConfigured } from '../config/env';
-import { DashboardPerson, DashboardSchedule } from '../types/dashboard';
+import { DashboardPerson, DashboardSchedule, PersonSlug } from '../types/dashboard';
 
 function getCalendarClient() {
   const auth = new google.auth.OAuth2(
@@ -20,6 +20,22 @@ function getCalendarClient() {
   });
 }
 
+function calendarIdForPerson(slug: PersonSlug) {
+  if (slug === 'piljae') {
+    return env.googleCalendarIdPiljae || env.googleCalendarId;
+  }
+
+  if (slug === 'byunghyun') {
+    return env.googleCalendarIdByunghyun;
+  }
+
+  if (slug === 'onyu') {
+    return env.googleCalendarIdOnyu || env.googleCalendarId;
+  }
+
+  return '';
+}
+
 function normalizeEventDate(value?: string | null, isEnd = false) {
   if (!value) {
     return null;
@@ -28,19 +44,24 @@ function normalizeEventDate(value?: string | null, isEnd = false) {
   return new Date(`${value}T${isEnd ? '23:59:59' : '00:00:00'}+09:00`);
 }
 
-export async function fetchPiljaeGoogleSchedules(
+export function isGoogleCalendarConfiguredForPerson(slug: PersonSlug) {
+  return Boolean(isGoogleCalendarConfigured && calendarIdForPerson(slug));
+}
+
+export async function fetchGoogleSchedules(
   person: DashboardPerson,
   weekStart: Date,
   weekEnd: Date
 ): Promise<DashboardSchedule[]> {
-  // The scaffold stays safe by returning no events until every OAuth value is set in `.env`.
-  if (!isGoogleCalendarConfigured) {
+  const calendarId = calendarIdForPerson(person.slug);
+
+  if (!isGoogleCalendarConfigured || !calendarId) {
     return [];
   }
 
   const calendar = getCalendarClient();
   const response = await calendar.events.list({
-    calendarId: env.googleCalendarId,
+    calendarId,
     singleEvents: true,
     orderBy: 'startTime',
     timeMin: weekStart.toISOString(),
@@ -61,7 +82,7 @@ export async function fetchPiljaeGoogleSchedules(
       }
 
       return {
-        id: `google-${event.id ?? randomUUID()}`,
+        id: `google-${person.slug}-${event.id ?? randomUUID()}`,
         title: event.summary ?? '제목 없는 일정',
         description: event.description ?? null,
         location: event.location ?? null,

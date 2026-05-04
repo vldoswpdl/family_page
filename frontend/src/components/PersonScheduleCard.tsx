@@ -34,13 +34,14 @@ export function PersonScheduleCard({ person, schedules, selectedFilter }: Person
               <div className="person-schedule-side">
                 <span>{formatTimeRange(schedule.startAt, schedule.endAt)}</span>
                 {schedule.location ? <small>{schedule.location}</small> : null}
+                {schedule.source === 'GOOGLE_CALENDAR' ? <small>Google Calendar</small> : null}
               </div>
             </div>
           ))
         ) : (
           <div className="person-empty">
-            {person.slug === 'piljae'
-              ? 'Google Calendar 연결 후 필재 일정이 여기에 표시됩니다.'
+            {person.slug === 'piljae' || person.slug === 'onyu'
+              ? 'Google Calendar 또는 DB에 이번 주 일정이 없습니다.'
               : '이번 주 등록된 일정이 없습니다.'}
           </div>
         )}

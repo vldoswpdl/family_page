@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { fetchDashboard } from './lib/api';
+import { fetchBackendHealth, fetchDashboard } from './lib/api';
 import { getWeekDays } from './lib/calendar';
+import { BackendStatusBadge } from './components/BackendStatusBadge';
 import { FilterBar } from './components/FilterBar';
 import { DiaryPage } from './components/DiaryPage';
 import { FamilyStockSheet } from './components/FamilyStockSheet';
@@ -55,6 +56,7 @@ export default function App() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [page, setPage] = useState<PageKey>(() => pageFromHash());
 
   useEffect(() => {
@@ -84,6 +86,33 @@ export default function App() {
 
     return () => {
       disposed = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+
+    async function checkBackend() {
+      try {
+        await fetchBackendHealth();
+        if (!disposed) {
+          setBackendStatus('online');
+        }
+      } catch {
+        if (!disposed) {
+          setBackendStatus('offline');
+        }
+      }
+    }
+
+    void checkBackend();
+    const timer = window.setInterval(() => {
+      void checkBackend();
+    }, 30000);
+
+    return () => {
+      disposed = true;
+      window.clearInterval(timer);
     };
   }, []);
 
@@ -162,6 +191,7 @@ export default function App() {
                 <h1>온유네 주간 일정</h1>
               </div>
               <div className="hero-side">
+                <BackendStatusBadge status={backendStatus} />
                 <span className="hero-label">{dashboard?.week.label ?? '주간 일정'}</span>
                 <small>{dashboard?.timezone ?? 'Asia/Seoul'}</small>
               </div>
@@ -172,6 +202,7 @@ export default function App() {
                 <div>
                   <h2>이번 주 전체 일정</h2>
                 </div>
+                <BackendStatusBadge status={backendStatus} />
                 {dashboard ? (
                   <FilterBar
                     people={dashboard.people}
