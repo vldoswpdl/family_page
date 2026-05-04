@@ -156,3 +156,17 @@ model ApiStatusLog {
   @@index([mode, checkedAt])
   @@map("api_status_log")
 }
+
+model StockRegisteredIp {
+  id        Int       @id @default(autoincrement())
+  mode      StockMode
+  ip        String
+  label     String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@unique([mode, ip])
+  @@index([mode, isActive])
+  @@map("stock_registered_ip")
+}

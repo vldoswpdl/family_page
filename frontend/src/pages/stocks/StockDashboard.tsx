@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { AllocationChart, ReturnChart } from '../../components/stocks/StockCharts';
 import { DailyOpinionBoard } from '../../components/stocks/DailyOpinionBoard';
+import { FixedIpManager } from '../../components/stocks/FixedIpManager';
 import { HoldingCards } from '../../components/stocks/HoldingCards';
 import { HoldingsTable } from '../../components/stocks/HoldingsTable';
 import { InsightCard } from '../../components/stocks/InsightCard';
-import { ModeBadge } from '../../components/stocks/ModeBadge';
+import { InvestorInsightPanel } from '../../components/stocks/InvestorInsightPanel';
+import { PerformanceSummary } from '../../components/stocks/PerformanceSummary';
 import { PortfolioSummary } from '../../components/stocks/PortfolioSummary';
 import { StatusBanner } from '../../components/stocks/StatusBanner';
 import { StockDetailPanel } from '../../components/stocks/StockDetailPanel';
@@ -13,19 +15,32 @@ import {
   fetchKiwoomStatus,
   fetchOpinions,
   fetchPortfolioHistory,
+  fetchRegisteredIps,
   fetchReports,
   fetchStockPortfolio,
   refreshStockPortfolio
 } from '../../lib/stockApi';
-import { DailyReport, KiwoomStatus, PortfolioHistoryPoint, StockInsight, StockMode, StockPortfolio, TradeOpinion } from '../../types/stocks';
+import {
+  DailyReport,
+  KiwoomStatus,
+  PortfolioHistoryPoint,
+  RegisteredIp,
+  StockInsight,
+  StockMode,
+  StockPortfolio,
+  TradeOpinion
+} from '../../types/stocks';
+
+const STOCK_MODE: StockMode = 'real';
 
 export function StockDashboard() {
-  const [mode, setMode] = useState<StockMode>('real');
+  const mode = STOCK_MODE;
   const [ownerName, setOwnerName] = useState('Family');
   const [portfolio, setPortfolio] = useState<StockPortfolio | null>(null);
   const [history, setHistory] = useState<PortfolioHistoryPoint[]>([]);
   const [stockHistory, setStockHistory] = useState<PortfolioHistoryPoint[]>([]);
   const [status, setStatus] = useState<KiwoomStatus | null>(null);
+  const [registeredIps, setRegisteredIps] = useState<RegisteredIp[]>([]);
   const [insight, setInsight] = useState<StockInsight | null>(null);
   const [opinions, setOpinions] = useState<TradeOpinion[]>([]);
   const [reports, setReports] = useState<DailyReport[]>([]);
@@ -37,6 +52,7 @@ export function StockDashboard() {
   async function load() {
     setLoading(true);
     setError(null);
+
     try {
       const [portfolioData, historyData, statusData, insightData, opinionData, reportData] = await Promise.all([
         fetchStockPortfolio(mode, ownerName),
@@ -50,6 +66,7 @@ export function StockDashboard() {
       setPortfolio(portfolioData);
       setHistory(historyData);
       setStatus(statusData);
+      setRegisteredIps(statusData.registeredIps ?? []);
       setInsight(insightData);
       setOpinions(opinionData);
       setReports(reportData);
@@ -69,7 +86,7 @@ export function StockDashboard() {
 
   useEffect(() => {
     void load();
-  }, [mode, ownerName]);
+  }, [ownerName]);
 
   useEffect(() => {
     let disposed = false;
@@ -97,15 +114,18 @@ export function StockDashboard() {
     return () => {
       disposed = true;
     };
-  }, [mode, ownerName, selectedStockCode]);
+  }, [ownerName, selectedStockCode]);
+
+  async function reloadIpStatus() {
+    const [statusData, ips] = await Promise.all([fetchKiwoomStatus(mode), fetchRegisteredIps(mode)]);
+    setStatus(statusData);
+    setRegisteredIps(ips);
+  }
 
   async function handleRefresh() {
-    if (mode === 'real' && !window.confirm('Run a real Kiwoom server portfolio refresh?')) {
-      return;
-    }
-
     setRefreshing(true);
     setError(null);
+
     try {
       await refreshStockPortfolio(mode, ownerName);
       await load();
@@ -121,7 +141,7 @@ export function StockDashboard() {
       <header className="stock-topbar">
         <div>
           <p>Family Stock Dashboard</p>
-          <h1>국내주식 포트폴리오</h1>
+          <h1>Domestic Stock Portfolio</h1>
         </div>
         <nav className="stock-nav">
           <a href="/stocks">Dashboard</a>
@@ -132,15 +152,7 @@ export function StockDashboard() {
       </header>
 
       <section className="stock-toolbar">
-        <div className="stock-control-group">
-          <button className={mode === 'mock' ? 'active' : ''} onClick={() => setMode('mock')} type="button">
-            Mock
-          </button>
-          <button className={mode === 'real' ? 'active real' : 'real'} onClick={() => setMode('real')} type="button">
-            Real
-          </button>
-          <ModeBadge mode={mode} />
-        </div>
+        <strong className="stock-mode-badge real">REAL SERVER</strong>
         <label className="stock-input">
           Owner
           <select value={ownerName} onChange={(event) => setOwnerName(event.target.value)}>
@@ -150,7 +162,7 @@ export function StockDashboard() {
           </select>
         </label>
         <button className="stock-primary-button" onClick={handleRefresh} disabled={refreshing} type="button">
-          {refreshing ? 'Refreshing...' : '실시간 새로고침'}
+          {refreshing ? 'Refreshing...' : 'Refresh Live Portfolio'}
         </button>
       </section>
 
@@ -170,8 +182,8 @@ export function StockDashboard() {
               <strong>{status?.currentIp || 'Unknown'}</strong>
             </div>
             <div>
-              <span>Registered IP</span>
-              <strong>{status?.registeredIp || 'Not configured'}</strong>
+              <span>Fixed IPs</span>
+              <strong>{registeredIps.map((item) => item.ip).join(', ') || 'Not configured'}</strong>
             </div>
             <div>
               <span>API status</span>
@@ -181,25 +193,32 @@ export function StockDashboard() {
 
           <PortfolioSummary portfolio={portfolio} />
 
+          <FixedIpManager
+            mode={mode}
+            currentIp={status?.currentIp ?? null}
+            registeredIps={registeredIps}
+            onChanged={reloadIpStatus}
+          />
+
           <section className="stock-panel">
             <div className="stock-section-title">
               <div>
                 <span>Holdings Snapshot</span>
-                <h2>보유 종목 한눈에 보기</h2>
+                <h2>Portfolio Holdings</h2>
               </div>
               <small>{portfolio.holdings.length} stocks</small>
             </div>
-            <HoldingCards
-              holdings={portfolio.holdings}
-              selectedStockCode={selectedStockCode}
-              onSelect={setSelectedStockCode}
-            />
+            <HoldingCards holdings={portfolio.holdings} selectedStockCode={selectedStockCode} onSelect={setSelectedStockCode} />
           </section>
 
           <section className="stock-grid two">
             <ReturnChart history={history} />
             <AllocationChart holdings={portfolio.holdings} />
           </section>
+
+          <PerformanceSummary portfolio={portfolio} history={history} />
+
+          <InvestorInsightPanel portfolio={portfolio} />
 
           <StockDetailPanel
             holding={portfolio.holdings.find((holding) => holding.stockCode === selectedStockCode) ?? null}

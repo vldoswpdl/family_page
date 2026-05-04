@@ -40,6 +40,7 @@ export interface KiwoomStatus {
   mode: StockMode;
   currentIp: string | null;
   registeredIp: string | null;
+  registeredIps: RegisteredIp[];
   isIpMatched: boolean;
   apiStatus: string;
   tokenStatus: {
@@ -50,6 +51,16 @@ export interface KiwoomStatus {
   lastSuccessfulFetchAt: string | null;
   checkedAt: string;
   errorMessage: string | null;
+}
+
+export interface RegisteredIp {
+  id: number;
+  mode: 'MOCK' | 'REAL';
+  ip: string;
+  label: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StockInsight {

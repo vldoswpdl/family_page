@@ -4,24 +4,24 @@ import { fetchKiwoomStatus, refreshStockPortfolio, runStockTest } from '../../li
 import { ApiTestResult, KiwoomStatus, StockMode } from '../../types/stocks';
 
 type TestAction = 'token' | 'account' | 'balance' | 'refresh';
+const STOCK_MODE: StockMode = 'real';
 
 export function AdminTest() {
-  const [mode, setMode] = useState<StockMode>('mock');
   const [status, setStatus] = useState<KiwoomStatus | null>(null);
   const [result, setResult] = useState<ApiTestResult | null>(null);
   const [running, setRunning] = useState<TestAction | null>(null);
 
   async function loadStatus() {
-    const data = await fetchKiwoomStatus(mode);
+    const data = await fetchKiwoomStatus(STOCK_MODE);
     setStatus(data);
   }
 
   useEffect(() => {
     void loadStatus().catch(() => setStatus(null));
-  }, [mode]);
+  }, []);
 
   async function execute(action: TestAction) {
-    if (mode === 'real' && !window.confirm('Run this test against the REAL Kiwoom server?')) {
+    if (!window.confirm('Run this test against the REAL Kiwoom server?')) {
       return;
     }
 
@@ -29,7 +29,8 @@ export function AdminTest() {
     setResult(null);
 
     try {
-      const data = action === 'refresh' ? await refreshStockPortfolio(mode) : await runStockTest(action, mode);
+      const data =
+        action === 'refresh' ? await refreshStockPortfolio(STOCK_MODE) : await runStockTest(action, STOCK_MODE);
       setResult(data);
       await loadStatus();
     } catch (error) {
@@ -59,13 +60,8 @@ export function AdminTest() {
 
       <section className="stock-toolbar">
         <div className="stock-control-group">
-          <button className={mode === 'mock' ? 'active' : ''} onClick={() => setMode('mock')} type="button">
-            Mock
-          </button>
-          <button className={mode === 'real' ? 'active real' : 'real'} onClick={() => setMode('real')} type="button">
-            Real
-          </button>
-          <ModeBadge mode={mode} />
+          <ModeBadge mode={STOCK_MODE} />
+          <strong className="stock-real-warning">REAL SERVER TESTS</strong>
         </div>
       </section>
 
@@ -94,7 +90,7 @@ export function AdminTest() {
             <span>Safe test panel</span>
             <h2>Backend-only Kiwoom calls</h2>
           </div>
-          {mode === 'real' ? <strong className="stock-real-warning">REAL SERVER</strong> : null}
+          <strong className="stock-real-warning">REAL SERVER</strong>
         </div>
 
         <div className="stock-test-grid">
@@ -130,4 +126,3 @@ export function AdminTest() {
     </main>
   );
 }
-

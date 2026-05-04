@@ -3,7 +3,14 @@ import { prisma } from '../lib/prisma';
 import { maskSecret, normalizeMode, parseNumber, toDbMode } from '../lib/stockUtils';
 import { kiwoomService } from '../services/kiwoomService';
 import { generateDailyInsight, getTodayInsight, createDailyReport, listDailyReports } from '../services/stockInsightService';
-import { getCurrentExternalIp, getKiwoomStatus } from '../services/stockNetworkService';
+import {
+  createRegisteredIp,
+  deleteRegisteredIp,
+  getCurrentExternalIp,
+  getKiwoomStatus,
+  listRegisteredIps,
+  updateRegisteredIp
+} from '../services/stockNetworkService';
 import { getLatestPortfolio, getPortfolioHistory, refreshPortfolio, runBalanceTest } from '../services/stockPortfolioService';
 import { sendLatestDailyReport } from '../services/stockTelegramService';
 import { OpinionTypeInput } from '../types/stocks';
@@ -120,6 +127,48 @@ stockRouter.get('/kiwoom/status', async (req, res, next) => {
     res.json(data);
   } catch (error) {
     next(error);
+  }
+});
+
+stockRouter.get('/network/registered-ips', async (req, res, next) => {
+  try {
+    const data = await listRegisteredIps(req.query.mode);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+stockRouter.post('/network/registered-ips', async (req, res) => {
+  try {
+    const data = await createRegisteredIp(req.body?.mode, req.body?.ip, req.body?.label);
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(400).json({
+      errorMessage: error instanceof Error ? error.message : 'Registered IP creation failed'
+    });
+  }
+});
+
+stockRouter.put('/network/registered-ips/:id', async (req, res) => {
+  try {
+    const data = await updateRegisteredIp(req.params.id, req.body?.ip, req.body?.label, req.body?.isActive);
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({
+      errorMessage: error instanceof Error ? error.message : 'Registered IP update failed'
+    });
+  }
+});
+
+stockRouter.delete('/network/registered-ips/:id', async (req, res) => {
+  try {
+    const data = await deleteRegisteredIp(req.params.id);
+    res.json(data);
+  } catch (error) {
+    res.status(400).json({
+      errorMessage: error instanceof Error ? error.message : 'Registered IP delete failed'
+    });
   }
 });
 

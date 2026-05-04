@@ -553,6 +553,163 @@
   border-color: #bfdbfe;
 }
 
+.stock-ip-state {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 0.84rem;
+}
+
+.stock-ip-state.matched {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.stock-ip-summary,
+.stock-ip-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.stock-ip-summary div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.stock-ip-summary span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stock-fixed-ip-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.stock-fixed-ip-list article {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.stock-fixed-ip-list article.active {
+  border-color: #bbf7d0;
+}
+
+.stock-fixed-ip-list span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.84rem;
+}
+
+.stock-ip-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.stock-ip-actions button,
+.stock-ip-form button {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  padding: 9px 10px;
+  cursor: pointer;
+}
+
+.stock-ip-form input {
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+.stock-form-message {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.stock-performance-grid,
+.stock-investor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stock-performance-grid article,
+.stock-investor-grid article {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.stock-performance-grid h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.stock-performance-grid div {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.stock-performance-grid div:first-of-type {
+  border-top: 0;
+}
+
+.stock-performance-grid span,
+.stock-investor-grid span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stock-performance-grid em,
+.stock-investor-grid p {
+  margin: 0;
+  color: #475569;
+  font-style: normal;
+}
+
+.stock-investor-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stock-investor-grid strong {
+  color: #0f172a;
+  font-size: 1.14rem;
+}
+
 @media (max-width: 960px) {
   .stock-topbar,
   .stock-section-title {
@@ -572,7 +729,12 @@
   .stock-test-grid,
   .stock-holding-card-grid,
   .stock-detail-grid,
-  .stock-daily-opinion-grid {
+  .stock-daily-opinion-grid,
+  .stock-ip-summary,
+  .stock-ip-form,
+  .stock-fixed-ip-list,
+  .stock-performance-grid,
+  .stock-investor-grid {
     grid-template-columns: 1fr;
   }
 }

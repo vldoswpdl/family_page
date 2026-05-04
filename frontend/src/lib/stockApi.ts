@@ -3,6 +3,7 @@ import {
   DailyReport,
   KiwoomStatus,
   PortfolioHistoryPoint,
+  RegisteredIp,
   StockInsight,
   StockMode,
   StockPortfolio,
@@ -122,5 +123,29 @@ export function sendTelegramReport(mode: StockMode) {
   return request<ApiTestResult>('/report/send-telegram', {
     method: 'POST',
     body: JSON.stringify({ mode })
+  });
+}
+
+export function fetchRegisteredIps(mode: StockMode) {
+  return request<RegisteredIp[]>(`/network/registered-ips?mode=${mode}`);
+}
+
+export function createRegisteredIp(input: { mode: StockMode; ip: string; label?: string }) {
+  return request<RegisteredIp>('/network/registered-ips', {
+    method: 'POST',
+    body: JSON.stringify(input)
+  });
+}
+
+export function updateRegisteredIp(id: number, input: { ip: string; label?: string; isActive: boolean }) {
+  return request<RegisteredIp>(`/network/registered-ips/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input)
+  });
+}
+
+export function deleteRegisteredIp(id: number) {
+  return request<RegisteredIp>(`/network/registered-ips/${id}`, {
+    method: 'DELETE'
   });
 }
