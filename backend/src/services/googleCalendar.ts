@@ -29,8 +29,9 @@ function calendarIdForPerson(slug: PersonSlug) {
     return env.googleCalendarIdByunghyun;
   }
 
+  // Onyu uses the DB fixed schedule. Do not attach the user's Google Calendar to Onyu.
   if (slug === 'onyu') {
-    return env.googleCalendarIdOnyu || env.googleCalendarId;
+    return '';
   }
 
   return '';
@@ -60,14 +61,24 @@ export async function fetchGoogleSchedules(
   }
 
   const calendar = getCalendarClient();
-  const response = await calendar.events.list({
-    calendarId,
-    singleEvents: true,
-    orderBy: 'startTime',
-    timeMin: weekStart.toISOString(),
-    timeMax: weekEnd.toISOString(),
-    maxResults: 100
-  });
+  const response = await calendar.events
+    .list({
+      calendarId,
+      singleEvents: true,
+      orderBy: 'startTime',
+      timeMin: weekStart.toISOString(),
+      timeMax: weekEnd.toISOString(),
+      maxResults: 100
+    })
+    .catch((error) => {
+      const status = typeof error === 'object' && error && 'status' in error ? ` status=${String(error.status)}` : '';
+      console.warn(`Google Calendar fetch skipped for ${person.slug}.${status}`);
+      return null;
+    });
+
+  if (!response) {
+    return [];
+  }
 
   return (response.data.items ?? [])
     .filter((event) => event.start)
