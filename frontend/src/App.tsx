@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { fetchBackendHealth, fetchDashboard } from './lib/api';
 import { getWeekDays } from './lib/calendar';
 import { BackendStatusBadge } from './components/BackendStatusBadge';
@@ -6,6 +6,7 @@ import { FilterBar } from './components/FilterBar';
 import { DiaryPage } from './components/DiaryPage';
 import { FamilyStockSheet } from './components/FamilyStockSheet';
 import { PersonScheduleCard } from './components/PersonScheduleCard';
+import { ScheduleComposer } from './components/ScheduleComposer';
 import { TravelGalleryPage } from './components/TravelGalleryPage';
 import { WeeklyCalendar } from './components/WeeklyCalendar';
 import { AdminTest } from './pages/stocks/AdminTest';
@@ -59,35 +60,22 @@ export default function App() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [page, setPage] = useState<PageKey>(() => pageFromHash());
 
-  useEffect(() => {
-    let disposed = false;
-
-    async function loadDashboard() {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchDashboard('all');
-
-        if (!disposed) {
-          setDashboard(data);
-        }
-      } catch (loadError) {
-        if (!disposed) {
-          setError(loadError instanceof Error ? loadError.message : '대시보드를 불러오는 중 오류가 발생했습니다.');
-        }
-      } finally {
-        if (!disposed) {
-          setLoading(false);
-        }
-      }
+  const loadDashboard = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchDashboard('all');
+      setDashboard(data);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : '대시보드를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
-
-    void loadDashboard();
-
-    return () => {
-      disposed = true;
-    };
   }, []);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
 
   useEffect(() => {
     let disposed = false;
@@ -212,6 +200,8 @@ export default function App() {
                 ) : null}
               </div>
 
+              {dashboard ? <ScheduleComposer people={dashboard.people} onCreated={loadDashboard} /> : null}
+
               {loading ? <div className="panel-state">일정을 불러오는 중입니다...</div> : null}
               {error ? <div className="panel-state error">{error}</div> : null}
 
@@ -226,7 +216,7 @@ export default function App() {
                   <h2>개별 주간 일정</h2>
                 </div>
                 <span className="subtle-note">
-                  현재는 Google Calendar, 병현/온유 PostgreSQL 데이터를 사용합니다.
+                  필재 일정은 Google Calendar, 병현/온유 일정은 PostgreSQL 데이터를 함께 보여줍니다.
                 </span>
               </div>
 

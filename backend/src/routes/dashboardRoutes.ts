@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDashboardData } from '../services/dashboardService';
+import { createDashboardSchedule, getDashboardData } from '../services/dashboardService';
 
 export const dashboardRouter = Router();
 
@@ -14,3 +14,16 @@ dashboardRouter.get('/', async (req, res, next) => {
   }
 });
 
+dashboardRouter.post('/schedules', async (req, res, next) => {
+  try {
+    const result = await createDashboardSchedule(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+
+    next(error);
+  }
+});

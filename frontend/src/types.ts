@@ -32,3 +32,14 @@ export interface DashboardResponse {
   schedules: Schedule[];
 }
 
+export interface ScheduleCreateInput {
+  personSlug: Exclude<PersonSlug, 'all'>;
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  description?: string;
+  repeatWeekly: boolean;
+  repeatUntil?: string;
+}

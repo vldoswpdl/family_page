@@ -1,4 +1,4 @@
-import { DashboardResponse, PersonSlug } from '../types';
+import { DashboardResponse, PersonSlug, Schedule, ScheduleCreateInput } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -15,6 +15,27 @@ export async function fetchDashboard(person: PersonSlug) {
   }
 
   return (await response.json()) as DashboardResponse;
+}
+
+export async function createSchedule(input: ScheduleCreateInput) {
+  const response = await fetch(`${API_BASE_URL}/dashboard/schedules`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(input)
+  });
+
+  const payload = (await response.json().catch(() => null)) as
+    | { createdCount: number; schedules: Schedule[] }
+    | { message?: string }
+    | null;
+
+  if (!response.ok) {
+    throw new Error((payload && 'message' in payload && payload.message) || '일정을 저장하지 못했습니다.');
+  }
+
+  return payload as { createdCount: number; schedules: Schedule[] };
 }
 
 export async function fetchBackendHealth() {

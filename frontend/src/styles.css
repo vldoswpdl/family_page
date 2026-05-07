@@ -976,6 +976,132 @@ button {
   color: #ffffff;
 }
 
+.schedule-composer {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #d8dfed;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+}
+
+.schedule-composer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.schedule-composer-head h3 {
+  margin: 0;
+  color: #182135;
+  font-size: 1.2rem;
+}
+
+.schedule-composer-head p {
+  margin: 4px 0 0;
+  color: #66748e;
+}
+
+.schedule-message {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.schedule-form-grid {
+  display: grid;
+  grid-template-columns: 150px minmax(220px, 1.5fr) repeat(4, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.schedule-field {
+  display: grid;
+  gap: 6px;
+  color: #33415c;
+  font-weight: 800;
+}
+
+.schedule-field span {
+  font-size: 0.88rem;
+}
+
+.schedule-field input,
+.schedule-field select,
+.schedule-field textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #d8dfed;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 10px 12px;
+  color: #22314c;
+  font: inherit;
+}
+
+.schedule-field input:disabled {
+  background: #edf2f8;
+  color: #8b96ab;
+}
+
+.schedule-field.memo {
+  grid-column: span 3;
+}
+
+.schedule-field.memo textarea {
+  min-height: 42px;
+  resize: vertical;
+}
+
+.schedule-checkbox {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #d8dfed;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #33415c;
+  font-weight: 800;
+}
+
+.schedule-checkbox input {
+  width: 16px;
+  min-height: auto;
+}
+
+.schedule-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.schedule-form-actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #1f2a44, #4f63d2);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(79, 99, 210, 0.18);
+}
+
+.schedule-form-actions button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
 .week-grid-wrapper {
   overflow-x: auto;
   padding-bottom: 4px;
@@ -1568,11 +1694,21 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .schedule-composer-head,
   .diary-inline-tools,
   .diary-composer-actions {
     display: grid;
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .schedule-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .schedule-field.title,
+  .schedule-field.memo {
+    grid-column: 1 / -1;
   }
 
   .diary-composer-inline-row {
@@ -1611,6 +1747,15 @@ button {
   .page-nav-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .schedule-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-field.title,
+  .schedule-field.memo {
+    grid-column: auto;
   }
 
   .diary-board-card {
