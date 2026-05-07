@@ -6,9 +6,10 @@ interface PersonScheduleCardProps {
   person: Person;
   schedules: Schedule[];
   selectedFilter: PersonSlug;
+  onDeleteSchedule?: (scheduleId: string) => void;
 }
 
-export function PersonScheduleCard({ person, schedules, selectedFilter }: PersonScheduleCardProps) {
+export function PersonScheduleCard({ person, schedules, selectedFilter, onDeleteSchedule }: PersonScheduleCardProps) {
   const isActive = selectedFilter === 'all' || selectedFilter === person.slug;
   const cardStyle = {
     '--accent': person.color
@@ -33,8 +34,16 @@ export function PersonScheduleCard({ person, schedules, selectedFilter }: Person
               </div>
               <div className="person-schedule-side">
                 <span>{formatTimeRange(schedule.startAt, schedule.endAt)}</span>
-                {schedule.location ? <small>{schedule.location}</small> : null}
                 {schedule.source === 'GOOGLE_CALENDAR' ? <small>Google Calendar</small> : null}
+                {schedule.source === 'DB' && onDeleteSchedule ? (
+                  <button
+                    type="button"
+                    className="schedule-delete-button compact"
+                    onClick={() => onDeleteSchedule(schedule.id)}
+                  >
+                    삭제
+                  </button>
+                ) : null}
               </div>
             </div>
           ))

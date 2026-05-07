@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { fetchBackendHealth, fetchDashboard } from './lib/api';
+import { deleteSchedule, fetchBackendHealth, fetchDashboard } from './lib/api';
 import { getWeekDays } from './lib/calendar';
 import { BackendStatusBadge } from './components/BackendStatusBadge';
 import { FilterBar } from './components/FilterBar';
@@ -72,6 +72,23 @@ export default function App() {
       setLoading(false);
     }
   }, []);
+
+  const handleDeleteSchedule = useCallback(
+    async (scheduleId: string) => {
+      const confirmed = window.confirm('이 일정을 삭제할까요?');
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await deleteSchedule(scheduleId);
+        await loadDashboard();
+      } catch (deleteError) {
+        window.alert(deleteError instanceof Error ? deleteError.message : '일정을 삭제하지 못했습니다.');
+      }
+    },
+    [loadDashboard]
+  );
 
   useEffect(() => {
     void loadDashboard();
@@ -206,7 +223,11 @@ export default function App() {
               {error ? <div className="panel-state error">{error}</div> : null}
 
               {!loading && !error && dashboard ? (
-                <WeeklyCalendar days={weekDays} schedules={filteredSchedules} />
+                <WeeklyCalendar
+                  days={weekDays}
+                  schedules={filteredSchedules}
+                  onDeleteSchedule={handleDeleteSchedule}
+                />
               ) : null}
             </section>
 
@@ -227,6 +248,7 @@ export default function App() {
                     person={person}
                     schedules={schedules.filter((schedule) => schedule.personSlug === person.slug)}
                     selectedFilter={selectedFilter}
+                    onDeleteSchedule={handleDeleteSchedule}
                   />
                 ))}
               </div>

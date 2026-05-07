@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createDashboardSchedule, getDashboardData } from '../services/dashboardService';
+import { createDashboardSchedule, deleteDashboardSchedule, getDashboardData } from '../services/dashboardService';
 
 export const dashboardRouter = Router();
 
@@ -18,6 +18,20 @@ dashboardRouter.post('/schedules', async (req, res, next) => {
   try {
     const result = await createDashboardSchedule(req.body);
     res.status(201).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+
+    next(error);
+  }
+});
+
+dashboardRouter.delete('/schedules/:id', async (req, res, next) => {
+  try {
+    const result = await deleteDashboardSchedule(req.params.id);
+    res.json(result);
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });

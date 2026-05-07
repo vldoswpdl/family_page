@@ -136,6 +136,17 @@ function addWeeks(date: Date, weeks: number) {
   return next;
 }
 
+function parseDbScheduleId(scheduleIdInput: string) {
+  const idText = scheduleIdInput.startsWith('db-') ? scheduleIdInput.slice(3) : scheduleIdInput;
+  const id = Number(idText);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error('삭제할 수 있는 저장 일정이 아닙니다.');
+  }
+
+  return id;
+}
+
 export async function createDashboardSchedule(input: unknown) {
   const data = input && typeof input === 'object' ? (input as Record<string, unknown>) : {};
   const personSlug = parseRequiredString(data.personSlug, '대상') as PersonFilter;
@@ -143,7 +154,6 @@ export async function createDashboardSchedule(input: unknown) {
   const date = parseRequiredString(data.date, '날짜');
   const startTime = parseRequiredString(data.startTime, '시작 시간');
   const endTime = parseRequiredString(data.endTime, '종료 시간');
-  const location = parseOptionalString(data.location);
   const description = parseOptionalString(data.description);
   const repeatWeekly = Boolean(data.repeatWeekly);
   const repeatUntil = typeof data.repeatUntil === 'string' && data.repeatUntil.trim() ? data.repeatUntil.trim() : date;
@@ -183,7 +193,7 @@ export async function createDashboardSchedule(input: unknown) {
         data: {
           title,
           description,
-          location,
+          location: null,
           startAt: addWeeks(firstStart, index),
           endAt: addWeeks(firstEnd, index),
           source: ScheduleSource.DB,
@@ -199,5 +209,32 @@ export async function createDashboardSchedule(input: unknown) {
   return {
     createdCount: created.length,
     schedules: created.map(mapDbScheduleToView)
+  };
+}
+
+export async function deleteDashboardSchedule(scheduleIdInput: string) {
+  const id = parseDbScheduleId(scheduleIdInput);
+  const schedule = await prisma.schedule.findUnique({
+    where: {
+      id
+    }
+  });
+
+  if (!schedule) {
+    throw new Error('삭제할 일정을 찾을 수 없습니다.');
+  }
+
+  if (schedule.source !== ScheduleSource.DB) {
+    throw new Error('저장된 일정만 삭제할 수 있습니다.');
+  }
+
+  await prisma.schedule.delete({
+    where: {
+      id
+    }
+  });
+
+  return {
+    deletedId: `db-${id}`
   };
 }

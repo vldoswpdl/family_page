@@ -33,7 +33,6 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
     date: today,
     startTime: '09:00',
     endTime: '10:00',
-    location: '',
     repeatWeekly: false,
     repeatUntil: addMonths(today, 3)
   });
@@ -53,13 +52,13 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
       const result = await createSchedule({
         ...form,
         description: undefined,
+        location: undefined,
         repeatUntil: form.repeatWeekly ? form.repeatUntil : undefined
       });
       setMessage(`${result.createdCount}개의 일정이 추가되었습니다.`);
       setForm((current) => ({
         ...current,
-        title: '',
-        location: ''
+        title: ''
       }));
       await onCreated();
     } catch (error) {
@@ -129,11 +128,6 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
               </option>
             ))}
           </select>
-        </label>
-
-        <label className="schedule-field">
-          <span>장소</span>
-          <input value={form.location ?? ''} onChange={(event) => update('location', event.target.value)} />
         </label>
 
         <label className="schedule-field repeat">

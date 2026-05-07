@@ -4,9 +4,10 @@ import { Schedule } from '../types';
 interface WeeklyCalendarProps {
   days: Date[];
   schedules: Schedule[];
+  onDeleteSchedule?: (scheduleId: string) => void;
 }
 
-export function WeeklyCalendar({ days, schedules }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ days, schedules, onDeleteSchedule }: WeeklyCalendarProps) {
   return (
     <div className="week-grid-wrapper">
       <div className="week-grid">
@@ -34,7 +35,15 @@ export function WeeklyCalendar({ days, schedules }: WeeklyCalendarProps) {
                       </div>
                       <h3>{schedule.title}</h3>
                       <p>{formatTimeRange(schedule.startAt, schedule.endAt)}</p>
-                      {schedule.location ? <small>{schedule.location}</small> : null}
+                      {schedule.source === 'DB' && onDeleteSchedule ? (
+                        <button
+                          type="button"
+                          className="schedule-delete-button"
+                          onClick={() => onDeleteSchedule(schedule.id)}
+                        >
+                          삭제
+                        </button>
+                      ) : null}
                     </article>
                   ))
                 ) : (
@@ -48,4 +57,3 @@ export function WeeklyCalendar({ days, schedules }: WeeklyCalendarProps) {
     </div>
   );
 }
-

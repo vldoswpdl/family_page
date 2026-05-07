@@ -1151,6 +1151,30 @@ button {
   font-size: 1rem;
 }
 
+.schedule-delete-button {
+  width: fit-content;
+  min-height: 32px;
+  margin-top: 10px;
+  padding: 0 11px;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  background: #fff5f5;
+  color: #b42318;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.schedule-delete-button:hover {
+  background: #fee2e2;
+}
+
+.schedule-delete-button.compact {
+  justify-self: end;
+  margin-top: 4px;
+}
+
 .schedule-item p,
 .schedule-item small,
 .person-schedule-row p,

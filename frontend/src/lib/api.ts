@@ -38,6 +38,20 @@ export async function createSchedule(input: ScheduleCreateInput) {
   return payload as { createdCount: number; schedules: Schedule[] };
 }
 
+export async function deleteSchedule(scheduleId: string) {
+  const response = await fetch(`${API_BASE_URL}/dashboard/schedules/${encodeURIComponent(scheduleId)}`, {
+    method: 'DELETE'
+  });
+
+  const payload = (await response.json().catch(() => null)) as { deletedId?: string; message?: string } | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || '일정을 삭제하지 못했습니다.');
+  }
+
+  return payload as { deletedId: string };
+}
+
 export async function fetchBackendHealth() {
   const response = await fetch(`${API_BASE_URL}/health`);
 
