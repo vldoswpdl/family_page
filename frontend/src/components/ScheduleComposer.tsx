@@ -7,6 +7,14 @@ interface ScheduleComposerProps {
   onCreated: () => Promise<void> | void;
 }
 
+const TIME_OPTIONS = Array.from({ length: 24 * 6 }, (_, index) => {
+  const hour = Math.floor(index / 6)
+    .toString()
+    .padStart(2, '0');
+  const minute = ((index % 6) * 10).toString().padStart(2, '0');
+  return `${hour}:${minute}`;
+});
+
 function todayText() {
   return new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
 }
@@ -26,7 +34,6 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
     startTime: '09:00',
     endTime: '10:00',
     location: '',
-    description: '',
     repeatWeekly: false,
     repeatUntil: addMonths(today, 3)
   });
@@ -45,14 +52,14 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
     try {
       const result = await createSchedule({
         ...form,
+        description: undefined,
         repeatUntil: form.repeatWeekly ? form.repeatUntil : undefined
       });
       setMessage(`${result.createdCount}개의 일정이 추가되었습니다.`);
       setForm((current) => ({
         ...current,
         title: '',
-        location: '',
-        description: ''
+        location: ''
       }));
       await onCreated();
     } catch (error) {
@@ -104,17 +111,24 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
 
         <label className="schedule-field">
           <span>시작</span>
-          <input
-            type="time"
-            value={form.startTime}
-            onChange={(event) => update('startTime', event.target.value)}
-            required
-          />
+          <select value={form.startTime} onChange={(event) => update('startTime', event.target.value)} required>
+            {TIME_OPTIONS.map((time) => (
+              <option key={`start-${time}`} value={time}>
+                {time}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="schedule-field">
           <span>종료</span>
-          <input type="time" value={form.endTime} onChange={(event) => update('endTime', event.target.value)} required />
+          <select value={form.endTime} onChange={(event) => update('endTime', event.target.value)} required>
+            {TIME_OPTIONS.map((time) => (
+              <option key={`end-${time}`} value={time}>
+                {time}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="schedule-field">
@@ -141,15 +155,6 @@ export function ScheduleComposer({ people, onCreated }: ScheduleComposerProps) {
             value={form.repeatUntil ?? ''}
             onChange={(event) => update('repeatUntil', event.target.value)}
             disabled={!form.repeatWeekly}
-          />
-        </label>
-
-        <label className="schedule-field memo">
-          <span>메모</span>
-          <textarea
-            value={form.description ?? ''}
-            onChange={(event) => update('description', event.target.value)}
-            placeholder="준비물이나 참고할 내용을 적어둘 수 있어요."
           />
         </label>
       </div>

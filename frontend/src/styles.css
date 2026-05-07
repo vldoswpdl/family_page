@@ -1019,7 +1019,7 @@ button {
 
 .schedule-form-grid {
   display: grid;
-  grid-template-columns: 150px minmax(220px, 1.5fr) repeat(4, minmax(120px, 1fr));
+  grid-template-columns: 150px minmax(220px, 1.5fr) repeat(6, minmax(110px, 1fr));
   gap: 12px;
   align-items: end;
 }
@@ -1051,15 +1051,6 @@ button {
 .schedule-field input:disabled {
   background: #edf2f8;
   color: #8b96ab;
-}
-
-.schedule-field.memo {
-  grid-column: span 3;
-}
-
-.schedule-field.memo textarea {
-  min-height: 42px;
-  resize: vertical;
 }
 
 .schedule-checkbox {
@@ -1706,8 +1697,7 @@ button {
     grid-template-columns: 1fr 1fr;
   }
 
-  .schedule-field.title,
-  .schedule-field.memo {
+  .schedule-field.title {
     grid-column: 1 / -1;
   }
 
@@ -1753,8 +1743,7 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .schedule-field.title,
-  .schedule-field.memo {
+  .schedule-field.title {
     grid-column: auto;
   }
 
