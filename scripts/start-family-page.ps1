@@ -9,8 +9,31 @@ $BackendErr = Join-Path $Root 'backend-prod.err.log'
 $FrontendLog = Join-Path $Root 'frontend-dev.log'
 $FrontendErr = Join-Path $Root 'frontend-dev.err.log'
 
+$machinePath = [Environment]::GetEnvironmentVariable('Path', 'Machine')
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+$cleanPath = (($machinePath, $userPath, 'C:\Program Files\nodejs') | Where-Object { $_ }) -join ';'
+[Environment]::SetEnvironmentVariable('Path', $cleanPath, 'Process')
+
 function Write-Step($message) {
   Write-Host "[family-page] $message"
+}
+
+function Quote-Arg($value) {
+  return '"' + ($value -replace '"', '\"') + '"'
+}
+
+function Start-DetachedNode($workingDirectory, $arguments, $stdoutLog, $stderrLog) {
+  $runnerName = if ($workingDirectory -eq $Backend) { 'run-backend.cmd' } else { 'run-frontend.cmd' }
+  $runnerPath = Join-Path $Root "scripts\$runnerName"
+  $argumentText = ($arguments | ForEach-Object { '"' + $_ + '"' }) -join ' '
+  $runnerContent = @(
+    '@echo off',
+    'chcp 65001 > nul',
+    "cd /d ""$workingDirectory""",
+    ('"' + $Node + '" ' + $argumentText)
+  )
+  Set-Content -LiteralPath $runnerPath -Value $runnerContent -Encoding UTF8
+  & cmd.exe /d /c "start `"`" /min `"$runnerPath`""
 }
 
 function Test-Http($url) {
@@ -58,8 +81,8 @@ if (-not (Test-Http 'http://127.0.0.1:4000/api/health')) {
   Write-Step '백엔드가 없거나 응답하지 않아 재시작합니다.'
   Stop-Port 4000
   Start-Sleep -Seconds 1
-  Start-Process -FilePath $Node -ArgumentList @('dist/src/server.js') -WorkingDirectory $Backend -WindowStyle Hidden -RedirectStandardOutput $BackendLog -RedirectStandardError $BackendErr
-  Start-Sleep -Seconds 3
+  Start-DetachedNode $Backend @('dist/src/server.js') $BackendLog $BackendErr
+  Start-Sleep -Seconds 7
 } else {
   Write-Step '백엔드 정상.'
 }
@@ -69,8 +92,8 @@ if (-not (Test-Http 'http://127.0.0.1:5173/api/health')) {
   Write-Step '프론트엔드가 없거나 백엔드 프록시가 맞지 않아 재시작합니다.'
   Stop-Port 5173
   Start-Sleep -Seconds 1
-  Start-Process -FilePath $Node -ArgumentList @('.\node_modules\vite\bin\vite.js', '--host', '127.0.0.1') -WorkingDirectory $Frontend -WindowStyle Hidden -RedirectStandardOutput $FrontendLog -RedirectStandardError $FrontendErr
-  Start-Sleep -Seconds 3
+  Start-DetachedNode $Frontend @('.\node_modules\vite\bin\vite.js', '--host', '127.0.0.1') $FrontendLog $FrontendErr
+  Start-Sleep -Seconds 7
 } else {
   Write-Step '프론트엔드 정상.'
 }
