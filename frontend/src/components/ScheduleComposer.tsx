@@ -7,11 +7,11 @@ interface ScheduleComposerProps {
   onCreated: () => Promise<void> | void;
 }
 
-const TIME_OPTIONS = Array.from({ length: 24 * 6 }, (_, index) => {
-  const hour = Math.floor(index / 6)
+const TIME_OPTIONS = Array.from({ length: 24 * 2 }, (_, index) => {
+  const hour = Math.floor(index / 2)
     .toString()
     .padStart(2, '0');
-  const minute = ((index % 6) * 10).toString().padStart(2, '0');
+  const minute = ((index % 2) * 30).toString().padStart(2, '0');
   return `${hour}:${minute}`;
 });
 

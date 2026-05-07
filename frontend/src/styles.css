@@ -1019,9 +1019,13 @@ button {
 
 .schedule-form-grid {
   display: grid;
-  grid-template-columns: 150px minmax(220px, 1.5fr) repeat(6, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
   align-items: end;
+}
+
+.schedule-field.title {
+  grid-column: span 2;
 }
 
 .schedule-field {
@@ -1039,6 +1043,7 @@ button {
 .schedule-field select,
 .schedule-field textarea {
   width: 100%;
+  max-width: 100%;
   min-height: 42px;
   border: 1px solid #d8dfed;
   border-radius: 16px;
